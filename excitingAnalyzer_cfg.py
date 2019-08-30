@@ -17,6 +17,12 @@ options.register('xs',
    VarParsing.VarParsing.varType.float,
    "cross section of the dataset process")
 
+options.register('isSignalMC',
+   True,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "run gen signal analyzer or not")
+
 options.parseArguments()
 
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
@@ -27,12 +33,12 @@ options.parseArguments()
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-#import FWCore.Utilities.FileUtils as FileUtils
+import FWCore.Utilities.FileUtils as FileUtils
 #mylist = FileUtils.loadListFromFile('./filelists/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list')
+mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m2000_13TeV-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/QCD_HT50to100_TuneCP5_13TeV-madgraphMLM-pythia8.list')
@@ -41,18 +47,19 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #mylist = FileUtils.loadListFromFile('./filelists/QCD_HT300to500_TuneCP5_13TeV-madgraphMLM-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8.list')
 #mylist = FileUtils.loadListFromFile('./filelists/ZprimeToTauTau_M-1000_TuneCP5_13TeV-pythia8-tauola.list')
-#readFiles = cms.untracked.vstring(*mylist)
+#mylist = FileUtils.loadListFromFile('./filelists/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8.list')
+readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
-   #fileNames = readFiles
-   fileNames = cms.untracked.vstring("")
+   fileNames = readFiles
+   #fileNames = cms.untracked.vstring("")
    #fileNames = cms.untracked.vstring("file:4EF56E49-0BD5-E511-B16D-0CC47A57CBBC.root")
 )
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(-1)
+   input = cms.untracked.int32(1000000)
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string('output.root')
+   fileName = cms.string('./mcsamples/Taustar_m500.root')
 )
 #process.jetHTAnalyzer = cms.EDAnalyzer("JetHTAnalyzer",
 #   genjetCollection = cms.InputTag("slimmedGenJets"),
@@ -62,7 +69,8 @@ process.TFileService = cms.Service("TFileService",
 
 process.goodPhotons = cms.EDFilter("PhotonProducer",
    photonCollection = cms.InputTag("slimmedPhotons"),
-   applyFilter = cms.bool(False)
+   applyFilter = cms.bool(False),
+   tauCollection = cms.InputTag("goodTaus:goodTaus")
 )
 
 process.goodJets = cms.EDProducer("JetProducer",
@@ -91,7 +99,7 @@ process.goodJets = cms.EDProducer("JetProducer",
 
 process.goodTaus = cms.EDFilter("TauProducer",
    tauCollection = cms.InputTag("slimmedTaus"),   
-   applyFilter = cms.bool(False)
+   applyFilter = cms.bool(True)
 )
 
 #process.visibleTauChannel = cms.EDAnalyzer("ExcitingAnalyzer",
@@ -133,6 +141,7 @@ process.osNTupleMaker = cms.EDAnalyzer("ExcitingAnalyzer",
    jetCollection = cms.InputTag("goodJets:goodJets"),
    xs = cms.double(options.xs),
    nevents = cms.int32(options.nevents),
+   genParticleCollection = cms.InputTag("prunedGenParticles")
 )
 
 process.ssNTupleMaker = cms.EDAnalyzer("ExcitingAnalyzer",
@@ -144,6 +153,7 @@ process.ssNTupleMaker = cms.EDAnalyzer("ExcitingAnalyzer",
    jetCollection = cms.InputTag("goodJets:goodJets"),
    xs = cms.double(options.xs),
    nevents = cms.int32(options.nevents),
+   genParticleCollection = cms.InputTag("prunedGenParticles"),
 )
 
 process.options = cms.untracked.PSet(
@@ -153,15 +163,15 @@ process.options = cms.untracked.PSet(
 #process.DYFilter = cms.EDFilter("DYFilter",
 #   genParticleCollection = cms.InputTag("prunedGenParticles")
 #)
-#process.GenVisTauProducer = cms.EDProducer("GenVisTauProducer",
-#   genParticleCollection = cms.InputTag("prunedGenParticles")
-#)
+process.GenVisTauProducer = cms.EDProducer("GenVisTauProducer",
+   genParticleCollection = cms.InputTag("prunedGenParticles")
+)
 
-#process.GenSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
-#   genParticleCollection = cms.InputTag("prunedGenParticles"),
-#   genVisTauCollection = cms.InputTag("GenVisTauProducer:genVisTaus"),
-#   metCollection = cms.InputTag("slimmedMETs")
-#)
+process.GenSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
+   genParticleCollection = cms.InputTag("prunedGenParticles"),
+   genVisTauCollection = cms.InputTag("GenVisTauProducer:genVisTaus"),
+   metCollection = cms.InputTag("slimmedMETs")
+)
 
 #process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
@@ -174,11 +184,15 @@ process.options = cms.untracked.PSet(
    #status = cms.untracked.vint32(3),
 #)
 
-process.p = cms.Path(
+
+mypath = cms.Sequence(
    process.goodTaus *
    process.goodPhotons *
    process.goodJets
    * process.osTauPair * process.osCollinearTaus * process.osNTupleMaker
-   * process.ssTauPair * process.ssCollinearTaus * process.ssNTupleMaker
+   #* process.ssTauPair * process.ssCollinearTaus * process.ssNTupleMaker
 )
+if options.isSignalMC:
+   mypath *= cms.Sequence(process.GenVisTauProducer * process.GenSignalAnalyzer)
+process.p = cms.Path(mypath)
 

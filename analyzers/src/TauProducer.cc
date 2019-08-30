@@ -41,7 +41,7 @@ bool TauProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nPlus = 0;
    int nMinus = 0;
    for (auto i = taus->begin(); i != taus->end(); ++i) {
-      if (i->pt()>=20. && std::abs(i->eta())<2.3) {
+      if (i->pt()>=35. && std::abs(i->eta())<2.1) {
          if (i->tauID("againstElectronVLooseMVA6") && i->tauID("againstMuonLoose3")) {
             if (i->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT") && i->tauID("decayModeFinding")) {
                goodTaus->push_back(*i);

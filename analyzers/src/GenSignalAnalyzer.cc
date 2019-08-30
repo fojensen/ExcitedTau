@@ -28,9 +28,10 @@ private:
    edm::EDGetTokenT<pat::CompositeCandidateCollection> genVisTauToken_;
    edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
    TTree * tree;
-   double pt_photon, pt_lead, pt_sublead;
-   double eta_photon, eta_lead, eta_sublead;
-   double MET, METphi;
+   double photon_pt, photon_eta;
+   double lead_pt, lead_eta;
+   double sublead_pt, sublead_eta;
+   double MET_pt, MET_phi;
    double dr_tautau, dr_lead, dr_sublead;
 };
 
@@ -42,24 +43,25 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
-   tree->Branch("pt_photon", &pt_photon, "pt_photon/D");
-   tree->Branch("eta_photon", &pt_photon, "eta_photon/D");
-   tree->Branch("pt_lead", &pt_lead, "pt_lead/D");
-   tree->Branch("eta_lead", &pt_lead, "eta_lead/D");
-   tree->Branch("pt_sublead", &pt_sublead, "pt_sublead/D");
-   tree->Branch("eta_sublead", &eta_sublead, "eta_sublead/D");
+   tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
+   tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
+   tree->Branch("lead_pt", &lead_pt, "lead_pt/D");
+   tree->Branch("lead_eta", &lead_eta, "lead_eta/D");
+   tree->Branch("sublead_pt", &sublead_pt, "sublead_pt/D");
+   tree->Branch("sublead_eta", &sublead_eta, "sublead_eta/D");
    tree->Branch("dr_tautau", &dr_tautau, "dr_tautau/D");
    tree->Branch("dr_lead", &dr_lead, "dr_lead/D");
    tree->Branch("dr_sublead", &dr_sublead, "dr_sublead/D");
-   tree->Branch("MET", &MET, "MET/D");
-   tree->Branch("METphi", &METphi, "METphi/D");
+   tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
+   tree->Branch("MET_phi", &MET_phi, "MET_phi/D");
 }
 
 void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   pt_photon = pt_lead = pt_sublead = 0.;
-   eta_photon = eta_lead = eta_sublead = 0.;
-   MET = METphi = 0.;
+   photon_pt = photon_eta = 0.;
+   lead_pt = lead_eta = 0.;
+   sublead_pt = sublead_eta = 0.;
+   MET_pt = MET_phi = 0.;
    dr_tautau = dr_lead = dr_sublead = 0.;
 
    edm::Handle<std::vector<reco::GenParticle>> genParticles;
@@ -87,20 +89,20 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
    }
 
-   pt_photon = photon.pt();
-   eta_photon = photon.eta();
-   pt_lead = leading.pt();
-   eta_lead = leading.eta();
-   pt_sublead = subleading.pt();
-   eta_sublead = subleading.eta();
+   photon_pt = photon.pt();
+   photon_eta = photon.eta();
+   lead_pt = leading.pt();
+   lead_eta = leading.eta();
+   sublead_pt = subleading.pt();
+   sublead_eta = subleading.eta();
    dr_tautau = reco::deltaR(leading, subleading);
    dr_lead = reco::deltaR(leading, photon);
    dr_sublead = reco::deltaR(photon, subleading);
 
    edm::Handle<std::vector<pat::MET>> met;
    iEvent.getByToken(metToken_, met);
-   MET = met->at(0).genMET()->pt();
-   METphi = met->at(0).genMET()->phi();
+   MET_pt = met->at(0).genMET()->pt();
+   MET_phi = met->at(0).genMET()->phi();
 
    tree->Fill();
 }

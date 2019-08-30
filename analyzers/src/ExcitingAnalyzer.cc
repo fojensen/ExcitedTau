@@ -16,7 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <TTree.h>
-#include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 class ExcitingAnalyzer : public edm::EDAnalyzer {
@@ -30,15 +30,20 @@ private:
    //edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
    edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
    edm::EDGetTokenT<std::vector<pat::Jet>> jetToken_;
-
+   edm::EDGetTokenT<std::vector<reco::GenParticle>> genParticleToken_;
    TTree * tree;
-   unsigned int nPhotons, nLeptons, nVertices;
+
+   // leptons
+   double lead_pt, lead_eta, lead_phi, lead_mass;
+   double sublead_pt, sublead_eta, sublead_phi, sublead_mass;
+   double ll_pt, ll_eta, ll_phi, ll_visiblemass;
+   double ll_collinearmass, ll_dr;
+   double mt_closest, mt_furthest;
+
+   unsigned int nPhotons, nLeptons, nGenTaus;
    unsigned int BTags[3], NJets;
-   double HT;
-   double MET, MET_phi, metSignificance;
-   double pt_photon, pt_lead, pt_sublead;
-   double phi_lead, phi_sublead, phi_ll;
-   double m_lead, m_sublead;
+   double MET_pt, MET_phi, metSignificance;
+   double photon_pt, photon_eta, photon_phi;
    double xsWeight;
    // leptons only
    double m_ll, pt_ll, dr_ll;
@@ -48,7 +53,6 @@ private:
    double dr_lead, dr_sublead;
    float photon_hadTowOverEm;
    // collinear
-   double collinear_m_ll;
    double collinear_m_min;
    double collinear_m_max;
 };
@@ -61,7 +65,8 @@ ExcitingAnalyzer::ExcitingAnalyzer(const edm::ParameterSet& iConfig)
    //vertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
    metToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metCollection"));
    jetToken_ = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetCollection"));
- 
+   genParticleToken_ = consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleCollection")); 
+
    const double xs_ = iConfig.getParameter<double>("xs");
    const int nevents_ = iConfig.getParameter<int>("nevents");
    xsWeight = xs_/double(nevents_);
@@ -71,58 +76,68 @@ ExcitingAnalyzer::ExcitingAnalyzer(const edm::ParameterSet& iConfig)
    // all events
    tree->Branch("nPhotons", &nPhotons, "nPhotons/i");
    tree->Branch("nLeptons", &nLeptons, "nLeptons/i");
-   //tree->Branch("nVertices", &nVertices, "nVertices/i");
-   tree->Branch("MET", &MET, "MET/D");
-   tree->Branch("HT", &HT, "HT/D");
+   tree->Branch("nGenTaus", &nGenTaus, "nGenTaus/i");
    tree->Branch("NJets", &NJets, "NJets/i");
+   tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
    tree->Branch("MET_phi", &MET_phi, "MET_phi/D");
    tree->Branch("metSignificance", &metSignificance, "metSignificance/D");
    tree->Branch("BTags", BTags, "BTags[3]/i");
    tree->Branch("xsWeight", &xsWeight, "xsWeight/D");
-   // leptons only
-   tree->Branch("pt_lead", &pt_lead, "pt_lead/D");
-   tree->Branch("pt_sublead", &pt_sublead, "pt_sublead/D");
-   tree->Branch("phi_lead", &phi_lead, "phi_lead/D");
-   tree->Branch("phi_sublead", &phi_sublead, "phi_sublead/D");
-   tree->Branch("m_lead", &m_lead, "m_lead/D");
-   tree->Branch("m_sublead", &m_sublead, "m_sublead/D");
-   tree->Branch("m_ll", &m_ll, "m_ll/D");
-   tree->Branch("pt_ll", &pt_ll, "pt_ll/D");
-   tree->Branch("phi_ll", &phi_ll, "phi_ll/D");
-   tree->Branch("dr_ll", &dr_ll, "dr_ll/D");
+   // leptons
+   tree->Branch("lead_pt", &lead_pt, "lead_pt/D");
+   tree->Branch("lead_eta", &lead_eta, "lead_eta/D");
+   tree->Branch("lead_phi", &lead_phi, "lead_phi/D");
+   tree->Branch("lead_mass", &lead_mass, "lead_mass/D");
+   tree->Branch("sublead_pt", &sublead_pt, "sublead_pt/D");
+   tree->Branch("sublead_eta", &sublead_eta, "sublead_eta/D");
+   tree->Branch("sublead_phi", &sublead_phi, "sublead_phi/D");
+   tree->Branch("sublead_mass", &sublead_mass, "sublead_mass/D");
+   tree->Branch("mt_furthest", &mt_furthest, "mt_furthest/D");
+   tree->Branch("mt_closest", &mt_closest, "mt_closest/D");
+   tree->Branch("ll_pt", &ll_pt, "ll_pt/D");
+   tree->Branch("ll_eta", &ll_eta, "ll_eta/D");
+   tree->Branch("ll_phi", &ll_phi, "ll_phi/D");
+   tree->Branch("ll_dr", &ll_dr, "ll_dr/D"); 
+   tree->Branch("ll_visiblemass", &ll_visiblemass, "ll_visiblemass/D");
+   tree->Branch("ll_collinearmass", &ll_collinearmass, "ll_collinearmass/D");
    tree->Branch("sumQ", &sumQ, "sumQ/I");
-   // leptons+photon
-   tree->Branch("pt_photon", &pt_photon, "pt_photon/D");
+   // photon
+   tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
+   tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
+   tree->Branch("photon_phi", &photon_phi, "photon_phi/D");
+
    tree->Branch("m_max", &m_max, "m_max/D");
    tree->Branch("m_min", &m_min, "m_min/D");
    tree->Branch("dr_lead", &dr_lead, "dr_lead/D");
    tree->Branch("dr_sublead", &dr_sublead, "dr_sublead/D");
-   tree->Branch("photon_hadTowOverEm", &photon_hadTowOverEm, "photon_hadTowOverEm/F");
    // collinear
-   tree->Branch("collinear_m_ll", &collinear_m_ll, "collinear_m_ll/D");
    tree->Branch("collinear_m_max", &collinear_m_max, "collinear_m_max/D");
    tree->Branch("collinear_m_min", &collinear_m_min, "collinear_m_min/D");
 }
 
 void ExcitingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   nPhotons = nLeptons = nVertices = 0;
-   MET = MET_phi = metSignificance = 0.;
+   // global
+   nPhotons = nLeptons = nGenTaus = 0;
+   MET_pt = MET_phi = metSignificance = 0.;
    BTags[0] = BTags[1] = BTags[2] = 0;
-   pt_photon = pt_lead = pt_sublead = 0.;
-   phi_lead = phi_sublead = phi_ll = 0.;;
-   m_lead = m_sublead = 0.;
-   NJets = 0;
-   HT = 0.;
-   // leptons only
-   m_ll = pt_ll = dr_ll = 0.;
+   // leptons
+   lead_pt = lead_eta = lead_phi = lead_mass = 0.;
+   sublead_pt = sublead_eta = sublead_phi = sublead_mass = 0.;
+   ll_pt = ll_eta = ll_phi = ll_visiblemass = 0.;
+   ll_collinearmass = ll_dr = 0.;
    sumQ = 0;
+   mt_closest = mt_furthest = 0.;
    // leptons+photon
    m_max = m_min = 0.;
    dr_lead = dr_sublead = 0.;
-   photon_hadTowOverEm = 0.;
-   // collinear
-   collinear_m_ll = collinear_m_min = collinear_m_max = 0.;
+   collinear_m_min = collinear_m_max = 0.;
+
+   edm::Handle<std::vector<reco::GenParticle>> genParticles;
+   iEvent.getByToken(genParticleToken_, genParticles);
+   for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
+      if (std::abs(i->pdgId())==15 && i->isLastCopy()) ++nGenTaus;
+   }
 
    edm::Handle<std::vector<pat::Photon>> photons;
    iEvent.getByToken(photonToken_, photons);
@@ -138,14 +153,13 @@ void ExcitingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
    edm::Handle<std::vector<pat::MET>> met;
    iEvent.getByToken(metToken_, met);
-   MET = met->at(0).pt();
+   MET_pt = met->at(0).pt();
    MET_phi = met->at(0).phi();
    metSignificance = met->at(0).metSignificance();
 
    edm::Handle<std::vector<pat::Jet>> jets;
    iEvent.getByToken(jetToken_, jets);
    for (auto i = jets->begin(); i != jets->end(); ++i) {
-      HT += i->pt();
       ++NJets;
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
       const float disc = i->bDiscriminator("pfDeepCSVJetTags:probb")+i->bDiscriminator("pfDeepCSVJetTags:probbb");
@@ -159,34 +173,52 @@ void ExcitingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       return;
    } 
 
-   pt_lead = leptons->at(0).pt();
-   pt_sublead = leptons->at(1).pt();
+   lead_pt = leptons->at(0).pt();
+   lead_eta = leptons->at(0).eta();
+   lead_phi = leptons->at(0).phi();
+   lead_mass = leptons->at(0).mass();
 
-   phi_lead = leptons->at(0).phi();
-   phi_sublead = leptons->at(1).phi();
+   sublead_pt = leptons->at(1).pt();
+   sublead_eta = leptons->at(1).eta();
+   sublead_phi = leptons->at(1).phi();
+   sublead_mass = leptons->at(1).mass();
 
-   m_lead = leptons->at(0).mass();
-   m_sublead = leptons->at(1).mass();
+   TVector2 v2_MET; v2_MET.SetMagPhi(MET_pt, MET_phi);
+   TVector2 v2_lead; v2_lead.SetMagPhi(lead_pt, lead_phi);
+   TVector2 v2_sublead; v2_sublead.SetMagPhi(sublead_pt, sublead_phi);
+   const double cosdphi_lead = cos(v2_MET.DeltaPhi(v2_lead));
+   const double cosdphi_sublead = cos(v2_MET.DeltaPhi(v2_sublead));
+   const double mt_lead = sqrt(2. * MET_pt * lead_pt * (1. - cosdphi_lead));
+   const double mt_sublead = sqrt(2. * MET_pt * sublead_pt * (1. - cosdphi_sublead));
+   if (cosdphi_lead>cosdphi_sublead) {
+      mt_closest = mt_lead;
+      mt_furthest = mt_sublead;
+   } else {
+      mt_closest = mt_sublead;
+      mt_furthest = mt_lead;
+   }
 
-   m_ll = (leptons->at(0).p4()+leptons->at(1).p4()).mass();
-   pt_ll = (leptons->at(0).p4()+leptons->at(1).p4()).pt();
-   phi_ll = (leptons->at(0).p4()+leptons->at(1).p4()).phi();
-   dr_ll = reco::deltaR(leptons->at(0), leptons->at(1));
+   ll_pt = (leptons->at(0).p4()+leptons->at(1).p4()).pt();
+   ll_eta = (leptons->at(0).p4()+leptons->at(1).p4()).eta();
+   ll_phi = (leptons->at(0).p4()+leptons->at(1).p4()).phi();
+   ll_visiblemass = (leptons->at(0).p4()+leptons->at(1).p4()).mass();
+   ll_dr = reco::deltaR(leptons->at(0), leptons->at(1));
 
    sumQ = leptons->at(0).charge()+leptons->at(1).charge();
 
    // collinear
    edm::Handle<edm::View<reco::Candidate>> collinearLeptons;
    iEvent.getByToken(collinearLeptonToken, collinearLeptons);
-   collinear_m_ll = (collinearLeptons->at(0).p4()+collinearLeptons->at(1).p4()).mass();
+   ll_collinearmass = (collinearLeptons->at(0).p4()+collinearLeptons->at(1).p4()).mass();
 
    if (nPhotons<1) {
       tree->Fill();
       return;
    }
 
-   pt_photon = photons->at(0).pt();
-   photon_hadTowOverEm = photons->at(0).hadTowOverEm();
+   photon_pt = photons->at(0).pt();
+   photon_eta = photons->at(0).eta();
+   photon_phi = photons->at(0).phi();
  
    // leptons + photon
    const double m_lead = (leptons->at(0).p4()+photons->at(0).p4()).mass();
