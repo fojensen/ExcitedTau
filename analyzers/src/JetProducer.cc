@@ -19,8 +19,7 @@ class JetProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Jet>> jetToken;
       edm::EDGetTokenT<std::vector<pat::Tau>> tauToken;
-      TH1D * h_nJets;
-      TH1D * h_nCollection;
+      TH1D *h_nCollection, *h_nJets;
 };
 
 JetProducer::JetProducer(const edm::ParameterSet& iConfig)
@@ -29,17 +28,18 @@ JetProducer::JetProducer(const edm::ParameterSet& iConfig)
    jetToken = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetCollection"));
    tauToken = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
    edm::Service<TFileService> fs;
-   h_nJets = fs->make<TH1D>("h_nJets", ";# of jets;events / 1", 10, -0.5, 9.5);
    h_nCollection = fs->make<TH1D>("h_nCollection", ";# of jets;events / 1", 10, -0.5, 9.5);
+   h_nJets = fs->make<TH1D>("h_nJets", ";# of jets;events / 1", 10, -0.5, 9.5);
 }
 
 void JetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   auto goodJets = std::make_unique<std::vector<pat::Jet>>();
+
    edm::Handle<std::vector<pat::Tau>> taus;
    iEvent.getByToken(tauToken, taus);
 
    //https://twiki.cern.ch/CMS/JetID13TeVRun2018
-   auto goodJets = std::make_unique<std::vector<pat::Jet>>();
    edm::Handle<std::vector<pat::Jet>> jets;
    iEvent.getByToken(jetToken, jets);
    h_nCollection->Fill(jets->size());
