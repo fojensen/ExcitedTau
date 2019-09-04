@@ -19,7 +19,7 @@ class ElectronProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Electron>> electronToken;
       bool applyFilter;
-      TH1D * h_nCollection, *h_nElectrons;
+      TH1D *h_nCollection, *h_nElectrons;
 };
 
 ElectronProducer::ElectronProducer(const edm::ParameterSet& iConfig)
@@ -28,8 +28,8 @@ ElectronProducer::ElectronProducer(const edm::ParameterSet& iConfig)
    electronToken = consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electronCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1D>("h_nCollection", ";# of electrons;events / 1", 5, -0.5, 4.5);
-   h_nElectrons = fs->make<TH1D>("h_nElectrons", ";# of electons;events / 1", 5, -0.5, 4.5);
+   h_nCollection = fs->make<TH1D>("h_nCollection", ";# of electrons;events / 1", 4, -0.5, 4.5);
+   h_nElectrons = fs->make<TH1D>("h_nElectrons", ";# of electrons;events / 1", 4, -0.5, 4.5);
 }
 
 bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
