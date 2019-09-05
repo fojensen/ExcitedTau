@@ -169,7 +169,7 @@ process.options = cms.untracked.PSet(
 
 mypath = cms.Sequence(
    #process.TauTauFilter
-   * process.goodElectrons
+   process.goodElectrons
    * process.goodVertices
    * process.goodMuons
    * process.goodTaus
