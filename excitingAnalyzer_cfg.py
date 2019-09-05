@@ -144,8 +144,8 @@ process.osTauTauPairProducer = cms.EDProducer("LeptonPairProducer",
    applyFilter = cms.bool(False)
 )
 process.osTauTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
-   visibleTauCollection = cms.InputTag("osETauPairProducer:visibleTaus"),
-   collinearTauCollection = cms.InputTag("osETauPairProducer:collinearTaus"),
+   visibleTauCollection = cms.InputTag("osTauTauPairProducer:visibleTaus"),
+   collinearTauCollection = cms.InputTag("osTauTauPairProducer:collinearTaus"),
    photonCollection = cms.InputTag("goodPhotons:goodPhotons")
 )
 
