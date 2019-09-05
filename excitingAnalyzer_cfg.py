@@ -25,7 +25,6 @@ options.register('isSignalMC',
 
 options.parseArguments()
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v12'
 #process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'
@@ -33,34 +32,20 @@ options.parseArguments()
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile('./filelists/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list')
-mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m2000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m5000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/QCD_HT50to100_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/QCD_HT100to200_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/QCD_HT200to300_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/QCD_HT300to500_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/ZprimeToTauTau_M-1000_TuneCP5_13TeV-pythia8-tauola.list')
-#mylist = FileUtils.loadListFromFile('./filelists/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-readFiles = cms.untracked.vstring(*mylist)
+#import FWCore.Utilities.FileUtils as FileUtils
+#mylist = FileUtils.loadListFromFile('./filelists/DYJetsToLL_TuneCP5_13TeV-madgraphMLM-pythia8.list')
+#readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
-   fileNames = readFiles
-   #fileNames = cms.untracked.vstring("")
+   #fileNames = readFiles
+   fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m1000_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/CA54CCDC-7DCD-E511-B5CB-00266CF250C4.root")
 )
+
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(1000000)
+   input = cms.untracked.int32(-1)
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string('./mcsamples/Taustar_m500.root')
-   #fileName = cms.string('output.root')
+   fileName = cms.string('output.root')
 )
 
 process.goodPhotons = cms.EDFilter("PhotonProducer",
@@ -183,7 +168,7 @@ process.options = cms.untracked.PSet(
 )
 
 mypath = cms.Sequence(
-   process.TauTauFilter
+   #process.TauTauFilter
    * process.goodElectrons
    * process.goodVertices
    * process.goodMuons
