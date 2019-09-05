@@ -9,7 +9,7 @@ data['people'].append({
    'xs': '6025.2',
    'nevents': '100194597',
    'nfiles': '1254',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTGJets',
@@ -17,7 +17,7 @@ data['people'].append({
    'xs': '3.697',
    'nevents': '4691915',
    'nfiles': '133',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTGamma_SingleLeptFromT',
@@ -25,7 +25,7 @@ data['people'].append({
    'xs': '0.704',
    'nevents': '4840000',
    'nfiles': '140',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTGamma_SingleLeptFromTbar',
@@ -33,7 +33,7 @@ data['people'].append({
    'xs': '0.704',
    'nevents': '4945000',
    'nfiles': '141',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTGamma_DiLept',
@@ -41,7 +41,7 @@ data['people'].append({
    'xs': '0.5804',
    'nevents': '4940000',
    'nfiles': '151',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTGamma_Hadronic',
@@ -49,7 +49,7 @@ data['people'].append({
    'xs': '1.689440272', ##FIXME
    'nevents': '4940000',
    'nfiles': '143',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTTo2L2Nu',
@@ -57,7 +57,7 @@ data['people'].append({
    'xs': '88.29',
    'nevents': '64310000',
    'nfiles': '968',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'TTToSemiLeptonic',
@@ -65,7 +65,7 @@ data['people'].append({
    'xs': '365.34',
    'nevents': '101550000',
    'nfiles': '1523',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'ZGToLLG',
@@ -73,7 +73,7 @@ data['people'].append({
    'xs': '117.864',
    'nevents': '13946364',
    'nfiles': '266',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'WJetsToLNu',
@@ -81,7 +81,7 @@ data['people'].append({
    'xs': '61334.9',
    'nevents': '71026861',
    'nfiles': '990',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT50to100',
@@ -89,7 +89,7 @@ data['people'].append({
    'xs': '19380000.', #FIXME
    'nevents': '38754230',
    'nfiles': '547',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT100to200',
@@ -97,7 +97,7 @@ data['people'].append({
    'xs': '19380000.',
    'nevents': '93972378',
    'nfiles': '1296',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT200to300',
@@ -105,7 +105,7 @@ data['people'].append({
    'xs': '1717000.',
    'nevents': '54289442',
    'nfiles': '780',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT300to500',
@@ -113,7 +113,7 @@ data['people'].append({
    'xs': '351300.',
    'nevents': '54661579',
    'nfiles': '829',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT500to700',
@@ -121,7 +121,7 @@ data['people'].append({
    'xs': '31630.',
    'nevents': '55152960',
    'nfiles': '1355',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT700to1000',
@@ -129,7 +129,7 @@ data['people'].append({
    'xs': '6802.',
    'nevents': '48158738',
    'nfiles': '1257',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT1000to1500',
@@ -137,7 +137,7 @@ data['people'].append({
    'xs': '1206.',
    'nevents': '15466225',
    'nfiles': '420',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT1500to2000',
@@ -145,7 +145,7 @@ data['people'].append({
    'xs': '120.4',
    'nevents': '10955087',
    'nfiles': '302',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'QCD_HT2000toInf',
@@ -153,7 +153,7 @@ data['people'].append({
    'xs': '25.24',
    'nevents': '5475677',
    'nfiles': '166',
-   'isSignal': False,
+   'isSignalMC': 'False',
 })
 data['people'].append({
    'name': 'Taustar_m250',
@@ -161,7 +161,7 @@ data['people'].append({
    'xs': '0.0177 * 1.285',
    'nevents': '20000',
    'nfiles': '9',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m500',
@@ -169,7 +169,7 @@ data['people'].append({
    'xs': '0.0108 * 1.284',
    'nevents': '20000',
    'nfiles': '9',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
     'name': 'Taustar_m750',
@@ -177,7 +177,7 @@ data['people'].append({
     'xs': '6.639e-3 * 1.277',
     'nevents': '20000',
     'nfiles': '1',
-    'isSignal': True
+    'isSignalMC': 'True'
 })
 data['people'].append({
    'name':'Taustar_m1000',
@@ -185,7 +185,7 @@ data['people'].append({
    'xs': '4.069e-3 * 1.270',
    'nevents': '20000',
    'nfiles': '',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m1250',
@@ -193,7 +193,7 @@ data['people'].append({
    'xs': '2.494e-3 * 1.264',
    'nevents': '15000',
    'nfiles': '3',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m1500',
@@ -201,7 +201,7 @@ data['people'].append({
    'xs': '1.529e-3 * 1.259',
    'nevents': '14718',
    'nfiles': '16',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m1750',
@@ -209,7 +209,7 @@ data['people'].append({
    'xs': '9.371e-4 * 1.256',
    'nevents': '14188',
    'nfiles': '',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m2000',
@@ -217,7 +217,7 @@ data['people'].append({
    'xs': '5.744e-4 * 1.255',
    'nevents': '14766',
    'nfiles': '2',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m2250',
@@ -225,7 +225,7 @@ data['people'].append({
    'xs': '3.521e-4 * 1.256',
    'nevents': '10000',
    'nfiles': '8',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m2500',
@@ -233,7 +233,7 @@ data['people'].append({
    'xs': '2.159e-4 * 1.260',
    'nevents': '10000',
    'nfiles': '15',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m2750',
@@ -241,7 +241,7 @@ data['people'].append({
    'xs': '1.323e-4 * 1.266',
    'nevents': '10000',
    'nfiles': '8',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m3000',
@@ -249,7 +249,7 @@ data['people'].append({
    'xs': '8.12e-5 * 1.275',
    'nevents': '10000',
    'nfiles': '',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m3250',
@@ -257,7 +257,7 @@ data['people'].append({
    'xs': '4.97e-5 * 1.285',
    'nevents': '10000',
    'nfiles': '3',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m3500',
@@ -265,7 +265,7 @@ data['people'].append({
    'xs': '3.05e-5 * 1.297',
    'nevents': '10000',
    'nfiles': '1',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m3750',
@@ -273,7 +273,7 @@ data['people'].append({
    'xs': '1.87e-5 * 1.310',
    'nevents': '10000',
    'nfiles': '',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 data['people'].append({
    'name': 'Taustar_m4000',
@@ -281,13 +281,14 @@ data['people'].append({
    'xs': '1.14e-5 * 1.324',
    'nevents': '10000',
    'nfiles': '',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 #data['people'].append({
 #   'name': 'Taustar_m4250',
 #   'das': '', 
 #   'xs': '7.02e-6 * 1.340',
 #   'nevents': '',
+#   'isSignalMC': 'True'
 #})
 data['people'].append({
    'name': 'Taustar_m4500',
@@ -295,13 +296,14 @@ data['people'].append({
    'xs': '4.30e-6 * 1.356',
    'nevents': '9408',
    'nfiles': '',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 #data['people'].append({
 #   'name': 'Taustar_m4750',
 #   'das': '',
 #   'xs': '2.64e-6 * 1.372',
 #   'nevents': '',
+#   'isSignalMC': 'True'
 #})
 data['people'].append({
    'name': 'Taustar_m5000',
@@ -309,7 +311,7 @@ data['people'].append({
    'xs': '1.62e-6 * 1.389',
    'nevents': '10000',
    'nfiles': '2',
-   'isSignal': True
+   'isSignalMC': 'True'
 })
 
 with open('datasets.json', 'w') as outfile:
