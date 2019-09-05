@@ -47,7 +47,7 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(primaryVertexColl_, goodVertices);
    //https://twiki.cern.ch/CMS/SWGuideMuonIdRun2
    for (auto i = muons->begin(); i != muons->end(); ++i) {
-      if (i->pt()>=35. && std::abs(i->eta())<2.4) {
+      if (i->pt()>=20. && std::abs(i->eta())<2.1) {
          const double iso = i->isolationR03().sumPt/i->pt();
          if (iso < 0.1) {
             const bool id = i->isTightMuon(goodVertices->at(0));
