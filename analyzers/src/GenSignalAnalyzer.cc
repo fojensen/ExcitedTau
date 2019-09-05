@@ -31,7 +31,7 @@ private:
    double deexcited_vispt, deexcited_viseta, deexcited_visphi, deexcited_vismass;
    double spectator_pt, spectator_eta, spectator_phi, spectator_mass;
    double spectator_vispt, spectator_viseta, spectator_visphi, spectator_vismass;
-   int deexcited_dm, spectator_dm;
+   unsigned int deexcited_dm, spectator_dm;
    double MET_pt, MET_eta, MET_phi, MET_mass;
 };
 
@@ -61,7 +61,7 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("deexcited_viseta", &deexcited_viseta, "deexcited_viseta/D");
    tree->Branch("deexcited_visphi", &deexcited_visphi, "deexcited_visphi/D");
    tree->Branch("deexcited_vismass", &deexcited_vismass, "deexcited_vismass/D");
-   tree->Branch("deexcited_dm", &deexcited_dm, "deexcited_dm/I");
+   tree->Branch("deexcited_dm", &deexcited_dm, "deexcited_dm/b");
    // spectator tau
    tree->Branch("spectator_pt", &spectator_pt, "spectator_pt/D");
    tree->Branch("spectator_eta", &spectator_eta, "spectator_eta/D");
@@ -72,7 +72,7 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("spectator_viseta", &spectator_viseta, "spectator_viseta/D");
    tree->Branch("spectator_visphi", &spectator_visphi, "spectator_visphi/D");
    tree->Branch("spectator_vismass", &spectator_vismass, "spectator_vismass/D");
-   tree->Branch("spectator_dm", &spectator_dm, "spectator_dm/I");
+   tree->Branch("spectator_dm", &spectator_dm, "spectator_dm/b");
    // MET
    tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
    tree->Branch("MET_eta", &MET_eta, "MET_eta/D");
@@ -87,7 +87,7 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    PolarLorentzVector photon, excited, deexcited, spectator;
    PolarLorentzVector deexcitedvis, spectatorvis;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
-      const int id = std::abs(i->pdgId());
+      const unsigned int id = std::abs(i->pdgId());
       if (id==22 && i->mother()) {
          if (std::abs(i->mother()->pdgId())==4000015) {
             photon = i->p4();

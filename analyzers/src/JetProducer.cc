@@ -19,7 +19,7 @@ class JetProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Jet>> jetToken;
       edm::EDGetTokenT<std::vector<pat::Tau>> tauToken;
-      TH1D *h_nCollection, *h_nJets;
+      TH1I *h_nCollection, *h_nJets;
 };
 
 JetProducer::JetProducer(const edm::ParameterSet& iConfig)
@@ -28,8 +28,8 @@ JetProducer::JetProducer(const edm::ParameterSet& iConfig)
    jetToken = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetCollection"));
    tauToken = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
    edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1D>("h_nCollection", ";# of jets;events / 1", 10, -0.5, 9.5);
-   h_nJets = fs->make<TH1D>("h_nJets", ";# of jets;events / 1", 10, -0.5, 9.5);
+   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of jets;events / 1", 10, -0.5, 9.5);
+   h_nJets = fs->make<TH1I>("h_nJets", ";# of jets;events / 1", 10, -0.5, 9.5);
 }
 
 void JetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -54,7 +54,7 @@ void JetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (!overlap && i->pt()>=30. && std::abs(i->eta())<2.6) {
          const float NHF = i->neutralHadronEnergyFraction();
          const float NEMF = i->neutralEmEnergyFraction();
-         const int NumConst = i->numberOfDaughters();
+         const size_t NumConst = i->numberOfDaughters();
          const float MUF = i->muonEnergyFraction();
          const float CHF = i->chargedHadronEnergyFraction();
          const int CHM = i->chargedMultiplicity();
@@ -64,7 +64,7 @@ void JetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
       }
    }
-   const int nJets = goodJets->size();
+   const size_t nJets = goodJets->size();
    h_nJets->Fill(nJets);
    iEvent.put(std::move(goodJets), std::string("goodJets"));
 }

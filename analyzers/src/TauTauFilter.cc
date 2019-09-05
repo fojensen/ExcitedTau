@@ -27,7 +27,7 @@ bool TauTauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    edm::Handle<std::vector<reco::GenParticle>> genParticles;
    iEvent.getByToken(genParticleToken, genParticles); 
-   int nGenTaus = 0;
+   unsigned int nGenTaus = 0;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
       if (std::abs(i->pdgId())==15 && i->isLastCopy()) {
          ++nGenTaus;

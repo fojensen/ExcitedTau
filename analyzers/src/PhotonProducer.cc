@@ -19,7 +19,7 @@ class PhotonProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Photon>> photonToken;
       bool applyFilter;
-      TH1D *h_nCollection, *h_nPhotons;
+      TH1I *h_nCollection, *h_nPhotons;
 };
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& iConfig)
@@ -28,8 +28,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& iConfig)
    photonToken = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1D>("h_nCollection", ";# of photons;events / 1", 5, -0.5, 4.5);
-   h_nPhotons = fs->make<TH1D>("h_nPhotons", ";# of photons;events / 1", 5, -0.5, 4.5);
+   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of photons;events / 1", 5, -0.5, 4.5);
+   h_nPhotons = fs->make<TH1I>("h_nPhotons", ";# of photons;events / 1", 5, -0.5, 4.5);
 }
 
 bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -42,7 +42,7 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = photons->begin(); i != photons->end(); ++i) {
-      const double eta = std::abs(eta);
+      const double eta = std::abs(i->eta());
       if (i->pt()>=50. && eta<2.5) {
          if (eta<1.479||eta>=1.653) {
             if (i->passElectronVeto()) {
@@ -51,7 +51,7 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
       }
    }
-   const int nPhotons = goodPhotons->size();
+   const size_t nPhotons = goodPhotons->size();
    h_nPhotons->Fill(nPhotons);
 
    iEvent.put(std::move(goodPhotons), std::string("goodPhotons"));  

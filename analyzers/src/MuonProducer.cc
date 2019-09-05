@@ -20,7 +20,7 @@ class MuonProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Muon>> muonToken;
       edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertexColl_;
-      TH1D *h_nCollection, *h_nMuons;
+      TH1I *h_nCollection, *h_nMuons;
       bool applyFilter;
 };
 
@@ -31,8 +31,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& iConfig)
    primaryVertexColl_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1D>("h_nCollection", ";# of muons;events / 1", 5, -0.5, 4.5);
-   h_nMuons = fs->make<TH1D>("h_nMuons", ";# of muons;events / 1", 5, -0.5, 4.5);
+   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of muons;events / 1", 5, -0.5, 4.5);
+   h_nMuons = fs->make<TH1I>("h_nMuons", ";# of muons;events / 1", 5, -0.5, 4.5);
 }
 
 bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -48,7 +48,7 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //https://twiki.cern.ch/CMS/SWGuideMuonIdRun2
    for (auto i = muons->begin(); i != muons->end(); ++i) {
       if (i->pt()>=20. && std::abs(i->eta())<2.1) {
-         const double iso = i->isolationR03().sumPt/i->pt();
+         const float iso = i->trackIso()/i->pt();
          if (iso < 0.1) {
             const bool id = i->isTightMuon(goodVertices->at(0));
             if (id) {
@@ -57,7 +57,7 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
       }
    }
-   const int nMuons = goodMuons->size();
+   const size_t nMuons = goodMuons->size();
    h_nMuons->Fill(nMuons);
    iEvent.put(std::move(goodMuons), std::string("goodMuons"));
 

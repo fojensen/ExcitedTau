@@ -35,7 +35,6 @@ private:
 
 LeptonPairAnalyzer::LeptonPairAnalyzer(const edm::ParameterSet& iConfig)
 {
-   photonToken_ = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
    visibleTauToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("visibleTauCollection"));
    collinearTauToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("collinearTauCollection"));
  

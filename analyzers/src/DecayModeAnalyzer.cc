@@ -17,14 +17,14 @@ public:
 private:
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    edm::EDGetTokenT<std::vector<reco::GenParticle>> genParticleToken_;
-   TH1D * h_decayMode;
+   TH1I * h_decayMode;
 };
 
 DecayModeAnalyzer::DecayModeAnalyzer(const edm::ParameterSet& iConfig)
 {
    genParticleToken_ = consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
    edm::Service<TFileService> fs;
-   h_decayMode = fs->make<TH1D>("h_decayMode", ";decay mode;events / bin", 7, -0.5, 6.5);
+   h_decayMode = fs->make<TH1I>("h_decayMode", ";decay mode;events / bin", 7, -0.5, 6.5);
    const TString xlabels[6] = {"#mu+#mu", "e+e", "e+#mu", "#mu+#tau_{had}", "e+#tau_{had}", "#tau_{had}+#tau_{had}"};
    for (int i = 0; i < 6; ++i) h_decayMode->GetXaxis()->SetBinLabel(i+2, xlabels[i]);
 }

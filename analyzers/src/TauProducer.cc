@@ -19,7 +19,7 @@ class TauProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Tau>> tauToken;
       bool applyFilter;
-      TH1D *h_nCollection, *h_nTaus;
+      TH1I *h_nCollection, *h_nTaus;
 };
 
 TauProducer::TauProducer(const edm::ParameterSet& iConfig)
@@ -28,8 +28,8 @@ TauProducer::TauProducer(const edm::ParameterSet& iConfig)
    tauToken = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1D>("h_nCollection", ";# of #taus;events / 1", 5, -0.5, 4.5);
-   h_nTaus = fs->make<TH1D>("h_nTaus", ";# of #taus;events / 1", 5, -0.5, 4.5);  
+   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of #taus;events / 1", 5, -0.5, 4.5);
+   h_nTaus = fs->make<TH1I>("h_nTaus", ";# of #taus;events / 1", 5, -0.5, 4.5);  
 }
 
 bool TauProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -51,7 +51,7 @@ bool TauProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }
 
-   const int nTaus = goodTaus->size();
+   const size_t nTaus = goodTaus->size();
    h_nTaus->Fill(nTaus);
    iEvent.put(std::move(goodTaus), std::string("goodTaus"));
    

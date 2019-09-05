@@ -53,17 +53,17 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
-   tree->Branch("nPhotons", &nPhotons, "nPhotons/i");
-   tree->Branch("nElectrons", &nElectrons, "nElectrons/i");
-   tree->Branch("nMuons", &nMuons, "nMuons/i");
-   tree->Branch("nTaus", &nTaus, "nTaus/i");
-   tree->Branch("nJets", &nJets, "nJets/i");
+   tree->Branch("nPhotons", &nPhotons, "nPhotons/b");
+   tree->Branch("nElectrons", &nElectrons, "nElectrons/b");
+   tree->Branch("nMuons", &nMuons, "nMuons/b");
+   tree->Branch("nTaus", &nTaus, "nTaus/b");
+   tree->Branch("nJets", &nJets, "nJets/b");
    tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
    tree->Branch("MET_phi", &MET_phi, "MET_phi/D");
    tree->Branch("metSignificance", &metSignificance, "metSignificance/D");
-   tree->Branch("BTags", BTags, "BTags[3]/i");
+   tree->Branch("BTags", BTags, "BTags[3]/b");
    tree->Branch("xsWeight", &xsWeight, "xsWeight/D");
-   tree->Branch("nVertices", &nVertices, "nVertices/i");
+   tree->Branch("nVertices", &nVertices, "nVertices/b");
 }
 
 void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
