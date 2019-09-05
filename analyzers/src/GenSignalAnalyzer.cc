@@ -28,9 +28,9 @@ private:
    double photon_pt, photon_eta, photon_phi;
    double excited_pt, excited_eta, excited_phi, excited_mass;
    double deexcited_pt, deexcited_eta, deexcited_phi, deexcited_mass;
-   double deexcited_vispt, deexcited_viseta, deexcited_visphi, deexcited_vismass;
+   double deexcitedvis_pt, deexcitedvis_eta, deexcitedvis_phi, deexcitedvis_mass;
    double spectator_pt, spectator_eta, spectator_phi, spectator_mass;
-   double spectator_vispt, spectator_viseta, spectator_visphi, spectator_vismass;
+   double spectatorvis_pt, spectatorvis_eta, spectatorvis_phi, spectatorvis_mass;
    unsigned int deexcited_dm, spectator_dm;
    double MET_pt, MET_eta, MET_phi, MET_mass;
 };
@@ -42,25 +42,25 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
-   // photon
-   tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
-   tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
-   tree->Branch("photon_phi", &photon_phi, "photon_phi/D");
    // excited tau
    tree->Branch("excited_pt", &excited_pt, "excited_pt/D");
    tree->Branch("excited_eta", &excited_eta, "excited_eta/D");
    tree->Branch("excited_phi", &excited_phi, "excited_phi/D");
    tree->Branch("excited_mass", &excited_mass, "excited_mass/D");
-   // excited tau
+    // photon
+   tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
+   tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
+   tree->Branch("photon_phi", &photon_phi, "photon_phi/D");
+   // deexcited tau
    tree->Branch("deexcited_pt", &deexcited_pt, "deexcited_pt/D");
    tree->Branch("deexcited_eta", &deexcited_eta, "deexcited_eta/D");
    tree->Branch("deexcited_phi", &deexcited_phi, "deexcited_phi/D");
    tree->Branch("deexcited_mass", &deexcited_mass, "deexcited_mass/D");
-   // excited visible tau
-   tree->Branch("deexcited_vispt", &deexcited_vispt, "deexcited_vispt/D");
-   tree->Branch("deexcited_viseta", &deexcited_viseta, "deexcited_viseta/D");
-   tree->Branch("deexcited_visphi", &deexcited_visphi, "deexcited_visphi/D");
-   tree->Branch("deexcited_vismass", &deexcited_vismass, "deexcited_vismass/D");
+   // deexcited visible tau
+   tree->Branch("deexcitedvis_pt", &deexcitedvis_pt, "deexcitedvis_pt/D");
+   tree->Branch("deexcitedvis_eta", &deexcitedvis_eta, "deexcitedvis_eta/D");
+   tree->Branch("deexcitedvis_phi", &deexcitedvis_phi, "deexcitedvis_phi/D");
+   tree->Branch("deexcitedvis_mass", &deexcitedvis_mass, "deexcitedvis_mass/D");
    tree->Branch("deexcited_dm", &deexcited_dm, "deexcited_dm/b");
    // spectator tau
    tree->Branch("spectator_pt", &spectator_pt, "spectator_pt/D");
@@ -68,10 +68,10 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("spectator_phi", &spectator_phi, "spectator_phi/D");
    tree->Branch("spectator_mass", &spectator_mass, "spectator_mass/D");
    // spectator visible tau
-   tree->Branch("spectator_vispt", &spectator_vispt, "spectator_vispt/D");
-   tree->Branch("spectator_viseta", &spectator_viseta, "spectator_viseta/D");
-   tree->Branch("spectator_visphi", &spectator_visphi, "spectator_visphi/D");
-   tree->Branch("spectator_vismass", &spectator_vismass, "spectator_vismass/D");
+   tree->Branch("spectatorvis_pt", &spectatorvis_pt, "spectatorvis_pt/D");
+   tree->Branch("spectatorvis_eta", &spectatorvis_eta, "spectatorvis_eta/D");
+   tree->Branch("spectatorvis_phi", &spectatorvis_phi, "spectatorvis_phi/D");
+   tree->Branch("spectatorvis_mass", &spectatorvis_mass, "spectatorvis_mass/D");
    tree->Branch("spectator_dm", &spectator_dm, "spectator_dm/b");
    // MET
    tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
@@ -84,8 +84,8 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
    edm::Handle<std::vector<reco::GenParticle>> genParticles;
    iEvent.getByToken(genParticleToken_, genParticles);
+   
    PolarLorentzVector photon, excited, deexcited, spectator;
-   PolarLorentzVector deexcitedvis, spectatorvis;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
       const unsigned int id = std::abs(i->pdgId());
       if (id==22 && i->mother()) {
@@ -108,6 +108,11 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
    }
 
+   PolarLorentzVector deexcitedvis, spectatorvis;
+   for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
+
+   }
+
    // photon
    photon_pt = photon.pt();
    photon_eta = photon.eta();
@@ -118,25 +123,25 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    excited_phi = excited.pt();
    excited_mass = excited.mass();
    // deexcited tau
-   deexcited_pt = excited.pt();
-   deexcited_eta = excited.eta();
-   deexcited_phi = excited.pt();
-   deexcited_mass = excited.mass();
-   // deexcited tau
-   deexcited_vispt = deexcitedvis.pt();
-   deexcited_viseta = deexcitedvis.eta();
-   deexcited_visphi = deexcitedvis.pt();
-   deexcited_vismass = deexcitedvis.mass();
-   // spectator
+   deexcited_pt = deexcited.pt();
+   deexcited_eta = deexcited.eta();
+   deexcited_phi = deexcited.pt();
+   deexcited_mass = deexcited.mass();
+   // deexcited visible tau
+   deexcitedvis_pt = deexcitedvis.pt();
+   deexcitedvis_eta = deexcitedvis.eta();
+   deexcitedvis_phi = deexcitedvis.pt();
+   deexcitedvis_mass = deexcitedvis.mass();
+   // spectator tau
    spectator_pt = spectator.pt();
    spectator_eta = spectator.eta();
    spectator_phi = spectator.pt();
    spectator_mass = spectator.mass();   
-   // spectator vis
-   spectator_vispt = spectatorvis.pt();
-   spectator_viseta = spectatorvis.eta();
-   spectator_visphi = spectatorvis.pt();
-   spectator_vismass = spectatorvis.mass();
+   // spectator visible tau
+   spectatorvis_pt = spectatorvis.pt();
+   spectatorvis_eta = spectatorvis.eta();
+   spectatorvis_phi = spectatorvis.pt();
+   spectatorvis_mass = spectatorvis.mass();
 
    edm::Handle<std::vector<pat::MET>> met;
    iEvent.getByToken(metToken_, met);
