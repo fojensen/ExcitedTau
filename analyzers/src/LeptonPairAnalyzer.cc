@@ -37,6 +37,7 @@ LeptonPairAnalyzer::LeptonPairAnalyzer(const edm::ParameterSet& iConfig)
 {
    visibleTauToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("visibleTauCollection"));
    collinearTauToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("collinearTauCollection"));
+   photonToken_ = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
  
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");

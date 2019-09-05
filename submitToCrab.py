@@ -17,7 +17,7 @@ with open('datasets.json') as json_file:
       f.write("config.JobType.pluginName = 'Analysis'\n")
       f.write("config.JobType.psetName = './excitingAnalyzer_cfg.py'\n")
 #      f.write("config.JobType.pyCfgParams = ['nevents="+p['nevents']+"', 'isSignalMC="+p['isSignalMC']+"', 'xs="+p['xs']+"']\n")
-      f.write("config.JobType.pyCfgParams = ['isSignalMC="+str(p['isSignalMC'])+"', 'xs="+str(p['xs'])+"', 'nevents="+str(p['nevents'])+"']")
+      f.write("config.JobType.pyCfgParams = ['isSignalMC="+str(p['isSignalMC'])+"', 'xs="+str(eval(p['xs']))+"', 'nevents="+str(p['nevents'])+"']")
       f.write("\n")
       f.write("config.Data.inputDataset = '"+p['das']+"'\n")
       f.write("config.Data.inputDBS = 'global'\n")

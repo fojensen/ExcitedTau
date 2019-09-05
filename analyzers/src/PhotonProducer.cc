@@ -17,7 +17,7 @@ class PhotonProducer : public edm::stream::EDFilter<> {
       explicit PhotonProducer(const edm::ParameterSet&);
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      edm::EDGetTokenT<std::vector<pat::Photon>> photonToken;
+      edm::EDGetTokenT<std::vector<pat::Photon>> photonToken_;
       bool applyFilter;
       TH1I *h_nCollection, *h_nPhotons;
 };
@@ -25,7 +25,7 @@ class PhotonProducer : public edm::stream::EDFilter<> {
 PhotonProducer::PhotonProducer(const edm::ParameterSet& iConfig)
 {
    produces<std::vector<pat::Photon>>("goodPhotons");
-   photonToken = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection")); 
+   photonToken_ = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    edm::Service<TFileService> fs;
    h_nCollection = fs->make<TH1I>("h_nCollection", ";# of photons;events / 1", 5, -0.5, 4.5);
@@ -37,7 +37,7 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto goodPhotons = std::make_unique<std::vector<pat::Photon>>();
 
    edm::Handle<std::vector<pat::Photon>> photons;
-   iEvent.getByToken(photonToken, photons);
+   iEvent.getByToken(photonToken_, photons);
    h_nCollection->Fill(photons->size());
 
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
