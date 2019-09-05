@@ -135,9 +135,9 @@ process.osTauTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
 )
 
 ### REQUIRES GEN INFORMATION
-process.TauTauFilter = cms.EDFilter("TauTauFilter",
-   genParticleCollection = cms.InputTag("prunedGenParticles")
-)
+#process.TauTauFilter = cms.EDFilter("TauTauFilter",
+#   genParticleCollection = cms.InputTag("prunedGenParticles")
+#)
 #process.GenVisTauProducer = cms.EDProducer("GenVisTauProducer",
 #   genParticleCollection = cms.InputTag("prunedGenParticles")
 #)
