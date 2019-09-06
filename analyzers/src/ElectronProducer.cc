@@ -41,7 +41,7 @@ bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    h_nCollection->Fill(electrons->size());
 
    for (auto i = electrons->begin(); i != electrons->end(); ++i) {
-      if (i->pt()>=24. && std::abs(i->eta())<2.1) {
+      if (i->pt()>=20. && std::abs(i->eta())<2.5) {
          goodElectrons->push_back(*i);
       }
    }

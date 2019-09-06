@@ -33,11 +33,11 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 #import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile('./filelists/DYJetsToLL_TuneCP5_13TeV-madgraphMLM-pythia8.list')
+#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list')
 #readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
    #fileNames = readFiles
-   fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m1000_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/CA54CCDC-7DCD-E511-B5CB-00266CF250C4.root")
+   fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -80,6 +80,16 @@ process.goodTaus = cms.EDFilter("TauProducer",
    applyFilter = cms.bool(False)
 )
 
+process.triggers = cms.EDFilter("TriggerProducer",
+   bits = cms.InputTag("TriggerResults", "", "HLT"),
+   #prescales = cms.InputTag("patTrigger"),
+   #triggers = cms.vstring(
+   #   "HLT_Photon200_v",
+   #   "HLT_Photon175_v",
+   #),
+   #applyFilter = cms.bool(False)
+)
+
 xsWeight_ = options.xs / options.nevents
 process.EventAnalyzer = cms.EDAnalyzer("EventAnalyzer",
    electronCollection = cms.InputTag("goodElectrons:goodElectrons"),
@@ -97,6 +107,10 @@ process.osETauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodElectrons:goodElectrons"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
+   minpt_lepton = cms.double(24.),
+   maxeta_lepton = cms.double(2.1),
+   minpt_tau = cms.double(30.),
+   maxeta_tau = cms.double(2.1),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False)
 )
@@ -111,6 +125,10 @@ process.osMuTauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodMuons:goodMuons"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
+   minpt_lepton = cms.double(20.),
+   maxeta_lepton = cms.double(2.1),
+   minpt_tau = cms.double(27.),
+   maxeta_tau = cms.double(2.1),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False)
 )
@@ -125,6 +143,10 @@ process.osTauTauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodTaus:goodTaus"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
+   minpt_lepton = cms.double(35.),
+   maxeta_lepton = cms.double(2.1),
+   minpt_tau = cms.double(35.),
+   maxeta_tau = cms.double(2.1),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False)
 )
@@ -169,12 +191,13 @@ process.options = cms.untracked.PSet(
 
 mypath = cms.Sequence(
    #process.TauTauFilter
-   process.goodElectrons
+   process.goodTaus
+   * process.goodElectrons
    * process.goodVertices
    * process.goodMuons
-   * process.goodTaus
    * process.goodPhotons
    * process.goodJets
+   * process.triggers
    * process.EventAnalyzer
    * process.osETauPairProducer * process.osETauPairAnalyzer
    * process.osMuTauPairProducer * process.osMuTauPairAnalyzer

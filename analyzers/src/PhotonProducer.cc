@@ -43,7 +43,7 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = photons->begin(); i != photons->end(); ++i) {
       const double eta = std::abs(i->eta());
-      if (i->pt()>=50. && eta<2.5) {
+      if (i->pt()>=20. && eta<2.5) {
          if (eta<1.479||eta>=1.653) {
             if (i->passElectronVeto()) {
                goodPhotons->push_back(*i);

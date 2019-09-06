@@ -28,6 +28,8 @@ class LeptonPairProducer : public edm::stream::EDProducer<> {
       edm::EDGetTokenT<edm::View<reco::Candidate>> leptonToken_;
       edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
       int q1q2;
+      double maxeta_lepton, minpt_lepton;
+      double maxeta_tau, minpt_tau;
 };
 
 LeptonPairProducer::LeptonPairProducer(const edm::ParameterSet& iConfig)
@@ -37,6 +39,10 @@ LeptonPairProducer::LeptonPairProducer(const edm::ParameterSet& iConfig)
    tauToken_ = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
    leptonToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("leptonCollection")); 
    metToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metCollection")); 
+   maxeta_lepton = iConfig.getParameter<double>("maxeta_lepton");
+   minpt_lepton = iConfig.getParameter<double>("minpt_lepton");
+   maxeta_tau = iConfig.getParameter<double>("maxeta_tau");
+   minpt_tau = iConfig.getParameter<double>("minpt_tau");
    q1q2 = iConfig.getParameter<int>("q1q2");
 }
 
@@ -54,14 +60,16 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    bool havePair = false;
    PolarLorentzVector cand0_vis, cand1_vis;
    for (auto i = taus->begin(); i != taus->end(); ++i) {
-      if (!havePair) {
+      if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
          for (auto j = leptons->begin(); j != leptons->end(); ++j) {
-            if (i->charge()*j->charge()==q1q2) {
-               if (reco::deltaR(*i, *j)>0.4) {
-                  cand0_vis = i->p4();
-                  cand1_vis = j->p4();
-                  havePair = true;
-                  break;
+            if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
+               if (i->charge()*j->charge()==q1q2) {
+                  if (reco::deltaR(*i, *j)>0.4) {
+                     cand0_vis = i->p4();
+                     cand1_vis = j->p4();
+                     havePair = true;
+                     break;
+                  }
                }
             }
          }
