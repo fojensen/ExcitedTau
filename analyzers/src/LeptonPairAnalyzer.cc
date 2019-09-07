@@ -9,7 +9,7 @@
 // new includes
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
+//#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <TTree.h>
@@ -19,12 +19,11 @@ public:
 	explicit LeptonPairAnalyzer(const edm::ParameterSet&);
 private:
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   edm::EDGetTokenT<std::vector<pat::Photon>> photonToken_;
+   edm::EDGetTokenT<std::vector<pat::PackedCandidate>> photonToken_;
    edm::EDGetTokenT<std::vector<pat::PackedCandidate>> visibleTauToken_;
    edm::EDGetTokenT<std::vector<pat::PackedCandidate>> collinearTauToken_;
 
    TTree * tree;
-   bool havePair, havePhoton;
    double lead_pt, lead_eta, lead_phi, lead_mass;
    double sublead_pt, sublead_eta, sublead_phi, sublead_mass;
    double ll_pt, ll_eta, ll_phi, ll_mass, ll_dr;
@@ -37,12 +36,10 @@ LeptonPairAnalyzer::LeptonPairAnalyzer(const edm::ParameterSet& iConfig)
 {
    visibleTauToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("visibleTauCollection"));
    collinearTauToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("collinearTauCollection"));
-   photonToken_ = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
+   photonToken_ = consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
  
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
-   tree->Branch("havePair", &havePair, "havePair/O");
-   tree->Branch("havePhoton", &havePhoton, "havePhoton/O");
    tree->Branch("lead_pt", &lead_pt, "lead_pt/D");
    tree->Branch("lead_eta", &lead_eta, "lead_eta/D");
    tree->Branch("lead_phi", &lead_phi, "lead_phi/D");
@@ -69,7 +66,8 @@ void LeptonPairAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 {
    edm::Handle<std::vector<pat::PackedCandidate>> visibleTaus;
    iEvent.getByToken(visibleTauToken_, visibleTaus);
-   havePair = visibleTaus->size();
+ 
+   const bool havePair = (visibleTaus->size()>=2);  
    if (havePair) {
       lead_pt = visibleTaus->at(0).pt();
       lead_eta = visibleTaus->at(0).eta();
@@ -90,9 +88,9 @@ void LeptonPairAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       ll_pt = ll_eta = ll_phi = ll_mass = ll_dr = 0.;
    }
 
-   edm::Handle<std::vector<pat::Photon>> photons;
+   edm::Handle<std::vector<pat::PackedCandidate>> photons;
    iEvent.getByToken(photonToken_, photons);
-   havePhoton = photons->size();
+   const bool havePhoton = (photons->size()>=1);
    if (havePhoton){
       photon_pt = photons->at(0).pt();
       photon_eta = photons->at(0).eta();
@@ -112,12 +110,12 @@ void LeptonPairAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    edm::Handle<std::vector<pat::PackedCandidate>> collinearTaus;
    iEvent.getByToken(collinearTauToken_, collinearTaus);
-   if (collinearTaus->size()>=2) {
+   if (havePair) {
       collinearmass_ll = (collinearTaus->at(0).p4()+collinearTaus->at(1).p4()).mass();
    } else {
       collinearmass_ll = 0.;
    }
-   if (collinearTaus->size()>=2 && havePhoton) {
+   if (havePair && havePhoton) {
       const double collinearmass_lead = (collinearTaus->at(0).p4()+photons->at(0).p4()).mass();
       const double collinearmass_sublead = (collinearTaus->at(1).p4()+photons->at(0).p4()).mass();
       collinearmass_photonl_max = TMath::Max(collinearmass_lead, collinearmass_sublead);
