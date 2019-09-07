@@ -19,6 +19,7 @@ class TauProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Tau>> tauToken;
       bool applyFilter;
+      double minpt, maxeta;
       TH1I *h_nCollection, *h_nTaus;
 };
 
@@ -27,6 +28,8 @@ TauProducer::TauProducer(const edm::ParameterSet& iConfig)
    produces<std::vector<pat::Tau>>("goodTaus");
    tauToken = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
+   maxeta = iConfig.getParameter<double>("maxeta");
+   minpt = iConfig.getParameter<double>("minpt");
    edm::Service<TFileService> fs;
    h_nCollection = fs->make<TH1I>("h_nCollection", ";# of #taus;events / 1", 5, -0.5, 4.5);
    h_nTaus = fs->make<TH1I>("h_nTaus", ";# of #taus;events / 1", 5, -0.5, 4.5);  
@@ -42,7 +45,7 @@ bool TauProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //https://twiki.cern.ch/CMS/TauIDRecommendation13TeV
    for (auto i = taus->begin(); i != taus->end(); ++i) {
-      if (i->pt()>=20. && std::abs(i->eta())<2.3) {
+      if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
          if (i->tauID("againstElectronVLooseMVA6") && i->tauID("againstMuonLoose3")) {
             if (i->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT") && i->tauID("decayModeFinding")) {
                goodTaus->push_back(*i);

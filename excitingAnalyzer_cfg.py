@@ -5,18 +5,25 @@ process = cms.Process("analysis")
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
 
+
+options.register('isMC',
+   False,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Is MC?"
+) 
 options.register('nevents',
    1,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.int,
-   "Number of events in the dataset.")
-
+   "Number of events in the dataset."
+)
 options.register('xs',
    1.,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.float,
-   "Cross section of the dataset process.")
-
+   "Cross section of the dataset process."
+)
 options.register('isSignalMC',
    False,
    VarParsing.VarParsing.multiplicity.singleton,
@@ -50,6 +57,8 @@ process.TFileService = cms.Service("TFileService",
 
 process.goodPhotons = cms.EDFilter("PhotonProducer",
    photonCollection = cms.InputTag("slimmedPhotons"),
+   minpt = cms.double(20.),
+   maxeta = cms.double(3.),
    applyFilter = cms.bool(False),
 )
 
@@ -60,7 +69,9 @@ process.goodJets = cms.EDProducer("JetProducer",
 
 process.goodElectrons = cms.EDFilter("ElectronProducer",
    electronCollection = cms.InputTag("slimmedElectrons"),
-   applyFilter = cms.bool(False)
+   applyFilter = cms.bool(False),
+   minpt = cms.double(20.),
+   maxeta = cms.double(2.5),
 )
 
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -72,11 +83,15 @@ process.goodVertices = cms.EDFilter("VertexSelector",
 process.goodMuons = cms.EDFilter("MuonProducer",
    muonCollection = cms.InputTag("slimmedMuons"),
    vertexCollection = cms.InputTag("goodVertices"),
+   minpt = cms.double(20.),
+   maxeta = cms.double(2.4),
    applyFilter = cms.bool(False)
 )
 
 process.goodTaus = cms.EDFilter("TauProducer",
    tauCollection = cms.InputTag("slimmedTaus"),
+   minpt = cms.double(20.),
+   maxeta = cms.double(2.3),
    applyFilter = cms.bool(False)
 )
 
@@ -107,17 +122,20 @@ process.osETauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodElectrons:goodElectrons"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
-   minpt_lepton = cms.double(24.),
+   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
+   minpt_lepton = cms.double(30),
    maxeta_lepton = cms.double(2.1),
    minpt_tau = cms.double(30.),
    maxeta_tau = cms.double(2.1),
+   minpt_photon = cms.double(30.),
+   maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False)
 )
 process.osETauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osETauPairProducer:visibleTaus"),
    collinearTauCollection = cms.InputTag("osETauPairProducer:collinearTaus"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons")
+   photonCollection = cms.InputTag("osETauPairProducer:selectedPhoton")
 )
 
 ### mu + tau ###
@@ -125,17 +143,20 @@ process.osMuTauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodMuons:goodMuons"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
+   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
    minpt_lepton = cms.double(20.),
    maxeta_lepton = cms.double(2.1),
    minpt_tau = cms.double(27.),
    maxeta_tau = cms.double(2.1),
+   minpt_photon = cms.double(30.),
+   maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False)
 )
 process.osMuTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osMuTauPairProducer:visibleTaus"),
    collinearTauCollection = cms.InputTag("osMuTauPairProducer:collinearTaus"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons")
+   photonCollection = cms.InputTag("osMuTauPairProducer:selectedPhoton")
 )
 
 ### tau + tau ###
@@ -143,17 +164,20 @@ process.osTauTauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodTaus:goodTaus"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
+   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
    minpt_lepton = cms.double(35.),
    maxeta_lepton = cms.double(2.1),
    minpt_tau = cms.double(35.),
    maxeta_tau = cms.double(2.1),
+   minpt_photon = cms.double(30.),
+   maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False)
 )
 process.osTauTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osTauTauPairProducer:visibleTaus"),
    collinearTauCollection = cms.InputTag("osTauTauPairProducer:collinearTaus"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons")
+   photonCollection = cms.InputTag("osTauTauPairProducer:selectedPhoton")
 )
 
 ### REQUIRES GEN INFORMATION
@@ -174,22 +198,23 @@ process.GenSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
 #   genParticleCollection = cms.InputTag("prunedGenParticles"),
 #)
 
-#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-#process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
-#   src = cms.InputTag("prunedGenParticles"),
-#   printP4 = cms.untracked.bool(False),
-#   printPtEtaPhi = cms.untracked.bool(False),
-#   printVertex = cms.untracked.bool(False),
-#   printStatus = cms.untracked.bool(True),
-#   printIndex = cms.untracked.bool(False),
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
+   src = cms.InputTag("prunedGenParticles"),
+   printP4 = cms.untracked.bool(False),
+   printPtEtaPhi = cms.untracked.bool(False),
+   printVertex = cms.untracked.bool(False),
+   printStatus = cms.untracked.bool(True),
+   printIndex = cms.untracked.bool(False),
    #status = cms.untracked.vint32(3),
-#)
+)
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(True),
 )
 
 mypath = cms.Sequence(
+   #process.printTree
    #process.TauTauFilter
    process.goodTaus
    * process.goodElectrons
@@ -203,6 +228,7 @@ mypath = cms.Sequence(
    * process.osMuTauPairProducer * process.osMuTauPairAnalyzer
    * process.osTauTauPairProducer * process.osTauTauPairAnalyzer
 )
+#if options.isMC:
 if options.isSignalMC:
    mypath *= cms.Sequence(process.GenSignalAnalyzer)
 

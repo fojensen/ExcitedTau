@@ -88,23 +88,19 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    PolarLorentzVector photon, excited, deexcited, spectator;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
       const unsigned int id = std::abs(i->pdgId());
-      if (id==22 && i->mother()) {
-         if (std::abs(i->mother()->pdgId())==4000015) {
-            photon = i->p4();
-         }
-      }
-      if (id==15 && i->mother()) {
-         if (std::abs(i->mother()->pdgId())==4000015) {
-            deexcited = i->p4();
-         }
-      }
+      unsigned int mid = 0;
+      if (i->mother()) mid = std::abs(i->mother()->pdgId());
       if (id==4000015) {
          excited = i->p4();
       }
-      if (id==15 && i->mother()) {
-         if (std::abs(i->mother()->pdgId())!=4000015) {
-            spectator = i->p4();
-         }
+      if (id==22 && mid==4000015) {
+         photon = i->p4();
+      }
+      if (id==15 && mid==4000015) {
+         deexcited = i->p4();
+      }
+      if (id==15 && mid!=15) {
+         spectator = i->p4();
       }
    }
 

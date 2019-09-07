@@ -9,6 +9,7 @@
 // new includes
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include <TVector2.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -25,31 +26,38 @@ class LeptonPairProducer : public edm::stream::EDProducer<> {
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Tau>> tauToken_;
-      edm::EDGetTokenT<edm::View<reco::Candidate>> leptonToken_;
+      edm::EDGetTokenT<edm::View<reco::Candidate>> leptonToken_;  
       edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
+      edm::EDGetTokenT<std::vector<pat::Photon>> photonToken_;
       int q1q2;
       double maxeta_lepton, minpt_lepton;
       double maxeta_tau, minpt_tau;
+      double maxeta_photon, minpt_photon;
 };
 
 LeptonPairProducer::LeptonPairProducer(const edm::ParameterSet& iConfig)
 {
-   produces<pat::PackedCandidateCollection>("visibleTaus");
-   produces<pat::PackedCandidateCollection>("collinearTaus");
+   produces<std::vector<pat::PackedCandidate>>("visibleTaus");
+   produces<std::vector<pat::PackedCandidate>>("collinearTaus");
+   produces<std::vector<pat::Photon>>("selectedPhoton");
    tauToken_ = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
    leptonToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("leptonCollection")); 
    metToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metCollection")); 
+   photonToken_ = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
    maxeta_lepton = iConfig.getParameter<double>("maxeta_lepton");
    minpt_lepton = iConfig.getParameter<double>("minpt_lepton");
    maxeta_tau = iConfig.getParameter<double>("maxeta_tau");
    minpt_tau = iConfig.getParameter<double>("minpt_tau");
+   maxeta_photon = iConfig.getParameter<double>("maxeta_photon");
+   minpt_photon = iConfig.getParameter<double>("minpt_photon");
    q1q2 = iConfig.getParameter<int>("q1q2");
 }
 
 void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   auto visibleTaus = std::make_unique<pat::PackedCandidateCollection>();
-   auto collinearTaus = std::make_unique<pat::PackedCandidateCollection>();
+   auto visibleTaus = std::make_unique<std::vector<pat::PackedCandidate>>();
+   auto collinearTaus = std::make_unique<std::vector<pat::PackedCandidate>>();
+   auto selectedPhoton = std::make_unique<std::vector<pat::Photon>>();
    
    edm::Handle<std::vector<pat::Tau>> taus;
    iEvent.getByToken(tauToken_, taus);
@@ -57,18 +65,34 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::Handle<edm::View<reco::Candidate>> leptons;
    iEvent.getByToken(leptonToken_, leptons);
  
-   bool havePair = false;
-   PolarLorentzVector cand0_vis, cand1_vis;
+   edm::Handle<std::vector<pat::Photon>> photons;
+   iEvent.getByToken(photonToken_, photons);
+   
+   pat::PackedCandidate *tau_vis, *lepton_vis;
+   pat::Photon *thePhoton;
+
+   bool haveTriplet = false;
    for (auto i = taus->begin(); i != taus->end(); ++i) {
       if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
          for (auto j = leptons->begin(); j != leptons->end(); ++j) {
             if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
                if (i->charge()*j->charge()==q1q2) {
-                  if (reco::deltaR(*i, *j)>0.4) {
-                     cand0_vis = i->p4();
-                     cand1_vis = j->p4();
-                     havePair = true;
-                     break;
+                  for (auto k = photons->begin(); k != photons->end(); ++k) {
+                     if (k->pt()>=minpt_photon && std::abs(k->eta())<maxeta_photon) {
+                        if (reco::deltaR(*i,*j)>=0.4 && reco::deltaR(*i,*k)>=0.4 && reco::deltaR(*j,*k)>=0.4) {
+                           tau_vis->setP4(i->p4());
+                           tau_vis->setCharge(i->charge());
+                           tau_vis->setPdgId(i->pdgId());
+                           lepton_vis->setP4(j->p4());
+                           lepton_vis->setCharge(j->charge());
+                           lepton_vis->setPdgId(j->pdgId());
+                           //tau_vis = dynamic_cast<pat::PackedCandidate*>(i->clone());
+                           //lepton_vis = dynamic_cast<pat::PackedCandidate*>(j->clone());                  
+                           thePhoton = k->clone();
+                           haveTriplet = true;
+                           break;
+                        }
+                     }
                   }
                }
             }
@@ -76,55 +100,86 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
    }
 
-   if (havePair) {
+   bool havePair = false;
+   bool havePhoton = false;
+   if (!haveTriplet) {
+      for (auto i = taus->begin(); i != taus->end(); ++i) {
+         if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
+            for (auto j = leptons->begin(); j != leptons->end(); ++j) {
+               if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
+                  if (i->charge()*j->charge()==q1q2) {
+                     if (reco::deltaR(*i, *j)>=0.4) {
+                        tau_vis->setP4(i->p4());
+                        tau_vis->setCharge(i->charge());
+                        tau_vis->setPdgId(i->pdgId());
+                        lepton_vis->setP4(j->p4());
+                        lepton_vis->setCharge(j->charge());
+                        lepton_vis->setPdgId(j->pdgId());
+                        //tau_vis = dynamic_cast<pat::PackedCandidate*>(i->clone());
+                        //lepton_vis = dynamic_cast<pat::PackedCandidate*>(j->clone());
+                        havePair = true;
+                        break;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      for (auto i = photons->begin(); i != photons->end(); ++i) {
+         if (i->pt()>=minpt_photon && std::abs(i->eta())<maxeta_photon) {  
+            thePhoton = i->clone();
+            havePhoton = true;
+            break;
+         }
+      }
+   }
 
-   edm::Handle<std::vector<pat::MET>> met;
-   iEvent.getByToken(metToken_, met);
-   PolarLorentzVector MET;
-   MET.SetPt(met->at(0).pt());
-   MET.SetEta(met->at(0).eta());
-   MET.SetPhi(met->at(0).phi());
-   MET.SetM(met->at(0).mass());
+   if (haveTriplet||havePair) {
 
-   const double cos0M = cos(dphi(cand0_vis.phi(), MET.phi()));
-   const double cos1M = cos(dphi(cand1_vis.phi(), MET.phi()));
-   const double cos01 = cos(dphi(cand0_vis.phi(), cand1_vis.phi()));
-   const double nu0mag = MET.pt() * (cos0M-cos1M*cos01) / (1.-cos01*cos01);
-   const double nu1mag = (MET.pt()*cos1M) - (nu0mag*cos01);
+      edm::Handle<std::vector<pat::MET>> met;
+      iEvent.getByToken(metToken_, met);
+      const double METpt = met->at(0).pt();
+      const double METphi = met->at(0).phi();
+
+      const double cos0M = cos(dphi(tau_vis->phi(), METphi));
+      const double cos1M = cos(dphi(lepton_vis->phi(), METphi));
+      const double cos01 = cos(dphi(tau_vis->phi(), lepton_vis->phi()));
+      const double nu0mag = METpt * (cos0M-cos1M*cos01) / (1.-cos01*cos01);
+      const double nu1mag = (METpt*cos1M) - (nu0mag*cos01);
    
-   PolarLorentzVector nu0;
-   nu0.SetEta(cand0_vis.eta());
-   nu0.SetPhi(cand0_vis.phi());
-   nu0.SetPt(std::abs(nu0mag)); // abs hack to avoid nu0mag<0
-   nu0.SetM(0.);
+      PolarLorentzVector nu0;
+      nu0.SetEta(tau_vis->eta());
+      nu0.SetPhi(tau_vis->phi());
+      nu0.SetPt(std::abs(nu0mag)); // abs hack to avoid nu0mag<0
+      nu0.SetM(0.);
+
+      pat::PackedCandidate *tau_col;
+      tau_col->setP4(tau_vis->p4()+nu0);
+      tau_col->setPdgId(tau_vis->pdgId());
+      tau_col->setCharge(tau_vis->charge());
  
-   PolarLorentzVector nu1;
-   nu1.SetEta(cand1_vis.eta());
-   nu1.SetPhi(cand1_vis.phi());
-   nu1.SetPt(std::abs(nu1mag)); // abs hack to avoid nu1mag<0
-   nu1.SetM(0.);
+      PolarLorentzVector nu1;
+      nu1.SetEta(lepton_vis->eta());
+      nu1.SetPhi(lepton_vis->phi());
+      nu1.SetPt(std::abs(nu1mag)); // abs hack to avoid nu1mag<0
+      nu1.SetM(0.);
    
-   pat::PackedCandidate visTau0, visTau1;
-   pat::PackedCandidate collinearTau0, collinearTau1;
-   visTau0.setP4(cand0_vis);
-   visTau1.setP4(cand1_vis);
-   collinearTau0.setP4(cand0_vis+nu0);
-   collinearTau1.setP4(cand1_vis+nu1);
+      pat::PackedCandidate*  lepton_col;
+      lepton_col->setP4(lepton_vis->p4()+nu1);
+      lepton_col->setPdgId(lepton_vis->pdgId());
+      lepton_col->setCharge(lepton_vis->charge());
 
-   if (visTau0.pt()>=visTau1.pt()) {
-      visibleTaus->push_back(visTau0);
-      visibleTaus->push_back(visTau1);     
-      collinearTaus->push_back(collinearTau0);
-      collinearTaus->push_back(collinearTau1);
-   } else {
-      visibleTaus->push_back(visTau1);
-      visibleTaus->push_back(visTau0); 
-      collinearTaus->push_back(collinearTau1);
-      collinearTaus->push_back(collinearTau0);
+      visibleTaus->push_back(*tau_vis);
+      visibleTaus->push_back(*lepton_vis); 
+      collinearTaus->push_back(*tau_col);
+      collinearTaus->push_back(*lepton_col);
    }
 
+   if (haveTriplet||havePhoton) {
+      selectedPhoton->push_back(*thePhoton);
    }
 
+   iEvent.put(std::move(selectedPhoton), std::string("selectedPhoton"));
    iEvent.put(std::move(visibleTaus), std::string("visibleTaus"));
    iEvent.put(std::move(collinearTaus), std::string("collinearTaus"));
 }

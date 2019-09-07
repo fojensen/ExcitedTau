@@ -19,6 +19,7 @@ class ElectronProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Electron>> electronToken;
       bool applyFilter;
+      double maxeta, minpt;
       TH1I *h_nCollection, *h_nElectrons;
 };
 
@@ -27,6 +28,8 @@ ElectronProducer::ElectronProducer(const edm::ParameterSet& iConfig)
    produces<std::vector<pat::Electron>>("goodElectrons");
    electronToken = consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electronCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
+   maxeta = iConfig.getParameter<double>("maxeta");
+   minpt = iConfig.getParameter<double>("minpt");
    edm::Service<TFileService> fs;
    h_nCollection = fs->make<TH1I>("h_nCollection", ";# of electrons;events / 1", 4, -0.5, 4.5);
    h_nElectrons = fs->make<TH1I>("h_nElectrons", ";# of electrons;events / 1", 4, -0.5, 4.5);
@@ -41,7 +44,7 @@ bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    h_nCollection->Fill(electrons->size());
 
    for (auto i = electrons->begin(); i != electrons->end(); ++i) {
-      if (i->pt()>=20. && std::abs(i->eta())<2.5) {
+      if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
          goodElectrons->push_back(*i);
       }
    }

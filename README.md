@@ -8,3 +8,6 @@ the search for excited tau leptons...
 * `cd ExcitedTau/`
 * `scram build`
 * `cmsRun excitingAnalyzer_cfg.py isSignalMC=True >& log &`
+
+## To submit jobs/datasets to CRAB:
+

@@ -21,6 +21,7 @@ class MuonProducer : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<std::vector<pat::Muon>> muonToken;
       edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertexColl_;
       TH1I *h_nCollection, *h_nMuons;
+      double minpt, maxeta;
       bool applyFilter;
 };
 
@@ -30,6 +31,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& iConfig)
    muonToken = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muonCollection")); 
    primaryVertexColl_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
    applyFilter = iConfig.getParameter<bool>("applyFilter");
+   maxeta = iConfig.getParameter<double>("maxeta");
+   minpt = iConfig.getParameter<double>("minpt"); 
    edm::Service<TFileService> fs;
    h_nCollection = fs->make<TH1I>("h_nCollection", ";# of muons;events / 1", 5, -0.5, 4.5);
    h_nMuons = fs->make<TH1I>("h_nMuons", ";# of muons;events / 1", 5, -0.5, 4.5);
@@ -47,7 +50,7 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(primaryVertexColl_, goodVertices);
    //https://twiki.cern.ch/CMS/SWGuideMuonIdRun2
    for (auto i = muons->begin(); i != muons->end(); ++i) {
-      if (i->pt()>=20. && std::abs(i->eta())<2.4) {
+      if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
          const float iso = i->trackIso()/i->pt();
          if (iso < 0.1) {
             const bool id = i->isTightMuon(goodVertices->at(0));

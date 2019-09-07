@@ -49,8 +49,6 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    metToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metCollection"));
    jetToken_ = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetCollection"));
 
-   xsWeight = iConfig.getParameter<double>("xsWeight");
-   
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
    tree->Branch("nPhotons", &nPhotons, "nPhotons/b");
@@ -62,8 +60,10 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("MET_phi", &MET_phi, "MET_phi/D");
    tree->Branch("metSignificance", &metSignificance, "metSignificance/D");
    tree->Branch("BTags", BTags, "BTags[3]/b");
-   tree->Branch("xsWeight", &xsWeight, "xsWeight/D");
    tree->Branch("nVertices", &nVertices, "nVertices/b");
+ 
+   xsWeight = iConfig.getParameter<double>("xsWeight");
+   tree->Branch("xsWeight", &xsWeight, "xsWeight/D");  
 }
 
 void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
