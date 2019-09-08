@@ -16,6 +16,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 typedef math::PtEtaPhiMLorentzVectorD PolarLorentzVector;
+#include <TLorentzVector.h>
 
 class GenSignalAnalyzer : public edm::EDAnalyzer {
 public:
@@ -26,13 +27,14 @@ private:
    edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
    TTree * tree;
    double photon_pt, photon_eta, photon_phi;
-   double excited_pt, excited_eta, excited_phi, excited_mass;
+   double excited_pt, excited_eta, excited_phi, excited_mass, excited_p;
    double deexcited_pt, deexcited_eta, deexcited_phi, deexcited_mass;
    double deexcitedvis_pt, deexcitedvis_eta, deexcitedvis_phi, deexcitedvis_mass;
    double spectator_pt, spectator_eta, spectator_phi, spectator_mass;
    double spectatorvis_pt, spectatorvis_eta, spectatorvis_phi, spectatorvis_mass;
    unsigned int deexcited_dm, spectator_dm;
    double MET_pt, MET_eta, MET_phi, MET_mass;
+   double photon_rest_p, photon_rest_pt;
 };
 
 GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
@@ -43,6 +45,7 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
    // excited tau
+   tree->Branch("excited_p", &excited_p, "excited_p/D");
    tree->Branch("excited_pt", &excited_pt, "excited_pt/D");
    tree->Branch("excited_eta", &excited_eta, "excited_eta/D");
    tree->Branch("excited_phi", &excited_phi, "excited_phi/D");
@@ -51,6 +54,8 @@ GenSignalAnalyzer::GenSignalAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
    tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
    tree->Branch("photon_phi", &photon_phi, "photon_phi/D");
+   tree->Branch("photon_rest_p", &photon_rest_p, "photon_rest_p/D");
+   tree->Branch("photon_rest_pt", &photon_rest_pt, "photon_rest_pt/D");
    // deexcited tau
    tree->Branch("deexcited_pt", &deexcited_pt, "deexcited_pt/D");
    tree->Branch("deexcited_eta", &deexcited_eta, "deexcited_eta/D");
@@ -110,30 +115,36 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    photon_pt = photon.pt();
    photon_eta = photon.eta();
    photon_phi = photon.phi();
+   
    // excited tau
+   excited_p = excited.P();
    excited_pt = excited.pt();
    excited_eta = excited.eta();
-   excited_phi = excited.pt();
+   excited_phi = excited.phi();
    excited_mass = excited.mass();
+
    // deexcited tau
    deexcited_pt = deexcited.pt();
    deexcited_eta = deexcited.eta();
-   deexcited_phi = deexcited.pt();
+   deexcited_phi = deexcited.phi();
    deexcited_mass = deexcited.mass();
+
    // deexcited visible tau
    deexcitedvis_pt = deexcitedvis.pt();
    deexcitedvis_eta = deexcitedvis.eta();
    deexcitedvis_phi = deexcitedvis.pt();
    deexcitedvis_mass = deexcitedvis.mass();
+
    // spectator tau
    spectator_pt = spectator.pt();
    spectator_eta = spectator.eta();
-   spectator_phi = spectator.pt();
+   spectator_phi = spectator.phi();
    spectator_mass = spectator.mass();   
+
    // spectator visible tau
    spectatorvis_pt = spectatorvis.pt();
    spectatorvis_eta = spectatorvis.eta();
-   spectatorvis_phi = spectatorvis.pt();
+   spectatorvis_phi = spectatorvis.phi();
    spectatorvis_mass = spectatorvis.mass();
 
    edm::Handle<std::vector<pat::MET>> met;
@@ -142,6 +153,17 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    MET_eta = met->at(0).genMET()->eta();
    MET_phi = met->at(0).genMET()->phi();
    MET_mass = met->at(0).genMET()->mass();
+
+   TLorentzVector photon_tlv;
+   photon_tlv.SetPtEtaPhiM(photon_pt, photon_eta, photon_phi, 0.);
+
+   TLorentzVector excited_tlv;
+   excited_tlv.SetPtEtaPhiM(excited_pt, excited_eta, excited_phi, excited_mass);
+
+   const TVector3 excited_frame = -1*excited_tlv.BoostVector();
+   photon_tlv.Boost(excited_frame);
+   photon_rest_p = photon_tlv.P();
+   photon_rest_pt = photon_tlv.Pt();
 
    tree->Fill();
 }
