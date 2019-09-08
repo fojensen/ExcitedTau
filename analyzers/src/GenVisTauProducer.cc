@@ -34,6 +34,7 @@ private:
    //double leadinv_pt, leadinv_eta, leadinv_phi, leadinv_mass;
    double sublvis_pt, sublvis_eta, sublvis_phi, sublvis_mass;
    double photon_pt, photon_eta;
+   int leadvis_pdgid, sublvis_pdgid;
    int dm;
    //double sublinv_pt, subleinv_eta, subleinv_phi, leadinv_mass;
 };
@@ -49,8 +50,10 @@ GenVisTauProducer::GenVisTauProducer(const edm::ParameterSet& iConfig)
    tree = fs->make<TTree>("tree", "tree");
    tree->Branch("leadvis_pt", &leadvis_pt, "leadvis_pt/D");
    tree->Branch("leadvis_eta", &leadvis_eta, "leadvis_eta/D");
+   tree->Branch("leadvis_pdgid", &leadvis_pdgid, "leadvis_pdgid/I");
    tree->Branch("sublvis_pt", &sublvis_pt, "sublvis_pt/D");
    tree->Branch("sublvis_eta", &sublvis_eta, "sublvis_eta/D");
+   tree->Branch("sublvis_pdgid", &sublvis_pdgid, "sublvis_pdgid/I");
    tree->Branch("dm", &dm, "dm/I");
    tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
    tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
@@ -67,11 +70,13 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    pat::CompositeCandidate visPlus;
    PolarLorentzVector visPlus_(0., 0., 0., 0.);
-   bool hadPlus = true;
+   bool elePlus = false;
+   bool muoPlus = false;
 
    pat::CompositeCandidate visMinus;
    PolarLorentzVector visMinus_(0., 0., 0., 0.);
-   bool hadMinus = true;
+   bool eleMinus = false;
+   bool muoMinus = false;
 
    pat::CompositeCandidate invPlus;
    PolarLorentzVector invPlus_(0., 0., 0., 0.);
@@ -97,6 +102,7 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if (i->mother()) {
          if (i->mother()->pdgId()!=i->pdgId()) { // isLastCopy()
             const int id = std::abs(i->pdgId());
+            // tau minus
             if (i->mother()->pdgId()==15) {
                if (id==12||id==14||id==16) {
                   invMinus.addDaughter(*i);
@@ -105,8 +111,10 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                   visMinus.addDaughter(*i);
                   visMinus_ += i->polarP4();
                }
-               if (id==11||id==13) hadMinus=false;
+               if (id==11) eleMinus=true;
+               if (id==13) muoMinus=true;
             }
+            // tau plus
             if (i->mother()->pdgId()==-15) {
                if (id==12||id==14||id==16) {
                   invPlus.addDaughter(*i);
@@ -115,31 +123,66 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                   visPlus.addDaughter(*i);
                   visPlus_ += i->polarP4();
                }
-               if (id==11||id==13) hadPlus=false;
+               if (id==11) elePlus=true;
+               if (id==13) muoPlus=true;
             }
          }
       }
    }
-
-   //(condition) ? (if_true) : (if_false)
-   (hadMinus) ? (visMinus.setName("hadronic")) : visMinus.setName("leptonic");
-   (hadPlus) ? (visPlus.setName("hadronic")) : visPlus.setName("leptonic");
-   invMinus.setName("minus");   
-   invPlus.setName("plus");
 
    visMinus.setP4(visMinus_);
    visPlus.setP4(visPlus_);
    invMinus.setP4(invMinus_);
    invPlus.setP4(invPlus_);
 
+   //(condition) ? (if_true) : (if_false)
+
+   if (eleMinus) {
+      visMinus.setName("electron");
+      invMinus.setName("electron");
+      visMinus.setPdgId(11);
+      invMinus.setPdgId(11);
+   } else if (muoMinus) {
+      visMinus.setName("muon");
+      invMinus.setName("muon");
+      visMinus.setPdgId(13);
+      invMinus.setPdgId(13);
+   } else {
+      visMinus.setName("hadronic");
+      invMinus.setName("hadronic");
+      visMinus.setPdgId(15);
+      invMinus.setPdgId(15);
+   }
+   if (elePlus) {
+      visPlus.setName("electron");
+      invPlus.setName("electron");
+      visPlus.setPdgId(11);
+      invPlus.setPdgId(11);
+   } else if (muoPlus) {
+      visPlus.setName("muon");
+      invPlus.setName("muon");
+      visPlus.setPdgId(13);
+      invPlus.setPdgId(13);
+   } else {
+      visPlus.setName("hadronic");
+      invPlus.setName("hadronic");
+      visPlus.setPdgId(15);
+      invPlus.setPdgId(15);
+   }
+
    auto genVisTaus = std::make_unique<pat::CompositeCandidateCollection>();
    auto genInvTaus = std::make_unique<pat::CompositeCandidateCollection>(); 
    
    if (visPlus.pt()>=visMinus.pt()) {
+
       leadvis_pt = visPlus.pt();
       leadvis_eta = visPlus.eta();
+      leadvis_pdgid = visPlus.pdgId();
+
       sublvis_pt = visMinus.pt();
       sublvis_eta = visMinus.eta();
+      sublvis_pdgid = visMinus.pdgId();
+
       genVisTaus->push_back(visPlus);
       genVisTaus->push_back(visMinus);
       genInvTaus->push_back(invPlus);
@@ -151,10 +194,15 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //h_dr_lead->Fill(reco::deltaR(visPlus, invPlus));
       //h_dr_sublead->Fill(reco::deltaR(visMinus, invMinus));
    } else {
+
       leadvis_pt = visMinus.pt();
       leadvis_eta = visMinus.eta();
+      leadvis_pdgid = visMinus.pdgId();
+
       sublvis_pt = visPlus.pt();
       sublvis_eta = visPlus.eta();
+      sublvis_pdgid = visPlus.pdgId();
+
       genVisTaus->push_back(visMinus);
       genVisTaus->push_back(visPlus);
       genInvTaus->push_back(invMinus);
