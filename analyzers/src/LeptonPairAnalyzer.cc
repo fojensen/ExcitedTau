@@ -40,6 +40,7 @@ LeptonPairAnalyzer::LeptonPairAnalyzer(const edm::ParameterSet& iConfig)
  
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
+  
    tree->Branch("lead_pt", &lead_pt, "lead_pt/D");
    tree->Branch("lead_eta", &lead_eta, "lead_eta/D");
    tree->Branch("lead_phi", &lead_phi, "lead_phi/D");
@@ -52,11 +53,10 @@ LeptonPairAnalyzer::LeptonPairAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("ll_eta", &ll_eta, "ll_eta/D");
    tree->Branch("ll_phi", &ll_phi, "ll_phi/D");
    tree->Branch("ll_mass", &ll_mass, "ll_mass/D"); 
-   tree->Branch("ll_dr", &ll_mass, "ll_dr/D");
+   tree->Branch("ll_dr", &ll_dr, "ll_dr/D");
    tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
    tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
-   tree->Branch("photon_phi", &photon_phi, "photon_phi/D");
-   // collinear approximation
+   tree->Branch("photon_phi", &photon_phi, "photon_phi/D");  
    tree->Branch("collinearmass_ll", &collinearmass_ll, "collinearmass_ll/D");
    tree->Branch("collinearmass_photonl_max", &collinearmass_photonl_max, "collinearmass_photonl_max/D");
    tree->Branch("collinearmass_photonl_min", &collinearmass_photonl_min, "collinearmass_photonl_min/D");
@@ -110,12 +110,13 @@ void LeptonPairAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    edm::Handle<std::vector<pat::PackedCandidate>> collinearTaus;
    iEvent.getByToken(collinearTauToken_, collinearTaus);
-   if (havePair) {
+   const bool haveCollinearPair = (collinearTaus->size()>=2);
+   if (haveCollinearPair) {
       collinearmass_ll = (collinearTaus->at(0).p4()+collinearTaus->at(1).p4()).mass();
    } else {
       collinearmass_ll = 0.;
    }
-   if (havePair && havePhoton) {
+   if (haveCollinearPair && havePhoton) {
       const double collinearmass_lead = (collinearTaus->at(0).p4()+photons->at(0).p4()).mass();
       const double collinearmass_sublead = (collinearTaus->at(1).p4()+photons->at(0).p4()).mass();
       collinearmass_photonl_max = TMath::Max(collinearmass_lead, collinearmass_sublead);

@@ -85,26 +85,23 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    edm::Handle<std::vector<reco::GenParticle>> genParticles;
    iEvent.getByToken(genParticleToken_, genParticles);
    
-   PolarLorentzVector photon, excited, deexcited, spectator;
+   PolarLorentzVector photon(0., 0., 0., 0.);
+   PolarLorentzVector excited(0., 0., 0., 0.);
+   PolarLorentzVector deexcited(0., 0., 0., 0.);
+   PolarLorentzVector spectator(0., 0., 0., 0.);
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
       const unsigned int id = std::abs(i->pdgId());
-      unsigned int mid = 0;
-      if (i->mother()) mid = std::abs(i->mother()->pdgId());
-      if (id==4000015) {
-         excited = i->p4();
-      }
-      if (id==22 && mid==4000015) {
-         photon = i->p4();
-      }
-      if (id==15 && mid==4000015) {
-         deexcited = i->p4();
-      }
-      if (id==15 && mid!=15) {
-         spectator = i->p4();
+      if (id==4000015) excited = i->p4();
+      if (i->mother()) {
+         const unsigned int mid = std::abs(i->mother()->pdgId());
+         if (id==22 && mid==4000015) photon = i->p4();
+         if (id==15 && mid==4000015) deexcited = i->p4();
+         if (id==15 && mid!=4000015 && mid!=15) spectator = i->p4();
       }
    }
 
-   PolarLorentzVector deexcitedvis, spectatorvis;
+   PolarLorentzVector deexcitedvis(0., 0., 0., 0.);
+   PolarLorentzVector spectatorvis(0., 0., 0., 0.);
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
 
    }
