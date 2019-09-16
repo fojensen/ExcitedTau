@@ -139,7 +139,8 @@ process.osETauPairProducer = cms.EDProducer("LeptonPairProducer",
    minpt_photon = cms.double(20.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
-   applyFilter = cms.bool(False)
+   applyFilter = cms.bool(False),
+   isMC = cms.bool(options.isMC),
 )
 process.osETauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osETauPairProducer:visibleTaus"),
@@ -160,7 +161,8 @@ process.osMuTauPairProducer = cms.EDProducer("LeptonPairProducer",
    minpt_photon = cms.double(20.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
-   applyFilter = cms.bool(False)
+   applyFilter = cms.bool(False),   
+   isMC = cms.bool(options.isMC),
 )
 process.osMuTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osMuTauPairProducer:visibleTaus"),
