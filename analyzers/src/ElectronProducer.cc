@@ -43,6 +43,7 @@ bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(electronToken, electrons);
    h_nCollection->Fill(electrons->size());
 
+   //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = electrons->begin(); i != electrons->end(); ++i) {
       if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
          goodElectrons->push_back(*i);

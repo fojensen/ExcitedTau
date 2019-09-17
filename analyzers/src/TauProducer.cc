@@ -12,7 +12,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 
-class TauProducer : public edm::stream::EDFilter<> {
+class TauProducer : public edm::stream::EDFilter<> { // what is stream?
    public:
       explicit TauProducer(const edm::ParameterSet&);
    private:

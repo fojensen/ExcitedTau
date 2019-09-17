@@ -48,6 +48,7 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<std::vector<reco::Vertex>> goodVertices;
    iEvent.getByToken(primaryVertexColl_, goodVertices);
+   
    //https://twiki.cern.ch/CMS/SWGuideMuonIdRun2
    for (auto i = muons->begin(); i != muons->end(); ++i) {
       if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
