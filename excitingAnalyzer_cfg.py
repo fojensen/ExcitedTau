@@ -39,11 +39,18 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 #import FWCore.Utilities.FileUtils as FileUtils
-#infile = './filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list' outfile = "./mcsamples/Taustar_m250.root"
-#infile = './filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list', outfile = "./mcsamples/Taustar_m500.root"
-#infile = './filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list', outfile = "./mcsamples/Taustar_m1000.root"
-#infile = './filelists/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.list', outfile = "./mcsamples/DYJetsToLL.root"
-#infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list', outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
+#infile = './filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list'
+#outfile = "./mcsamples/Taustar_m250.root"
+#infile = './filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list'
+#outfile = "./mcsamples/Taustar_m500.root"
+#infile = './filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list'
+#outfile = "./mcsamples/Taustar_m1000.root"
+#infile = './filelists/Taustar_TauG_L10000_m2000_13TeV-pythia8.list'
+#outfile = "./mcsamples/Taustar_m2000.root"
+#infile = './filelists/Taustar_TauG_L10000_m3000_13TeV-pythia8.list'
+#outfile = "./mcsamples/Taustar_m3000.root"
+#infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list'
+#outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
 #mylist = FileUtils.loadListFromFile(infile)
 #readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
@@ -60,6 +67,10 @@ process.TFileService = cms.Service("TFileService",
    #fileName = cms.string(outfile)
    fileName = cms.string("output.root")
 )
+
+#from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+#setupEgammaPostRecoSeq(process,era='2018-Prompt')  
+#a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
 
 process.goodPhotons = cms.EDFilter("PhotonProducer",
    photonCollection = cms.InputTag("slimmedPhotons"),

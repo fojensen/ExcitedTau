@@ -6,13 +6,22 @@ isSignalMC_ = 'False'
 data = {}
 data['people'] = []
 
+#data['people'].append({
+#   'name': 'DYJetsToLL',
+#   'das': '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+#   'nevents': '100194597',
+#   'nfiles': '1254',
+#   'isMC': isMC_,
+#   'xs': '6025.2',
+#   'isSignalMC': isSignalMC_
+#})
 data['people'].append({
-   'name': 'DYJetsToLL',
-   'das': '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
-   'nevents': '100194597',
-   'nfiles': '1254',
+   'name': 'DYJetsToLL_Zpt150',
+   'das': '/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+   'nevents': '2135787',
+   'nfiles': '60',
    'isMC': isMC_,
-   'xs': '6025.2',
+   'xs': '6025.2',###FIXME
    'isSignalMC': isSignalMC_
 })
 data['people'].append({
@@ -24,87 +33,96 @@ data['people'].append({
    'xs': '3.697',
    'isSignalMC': isSignalMC_
 })
-data['people'].append({
-   'name': 'TTGamma_SingleLeptFromT',
-   'das': '/TTGamma_SingleLeptFromT_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
-   'nevents': '4840000',
-   'nfiles': '140',
-   'isMC': isMC_,
-   'xs': '0.704',
-   'isSignalMC': isSignalMC_
-})
-data['people'].append({
-   'name': 'TTGamma_SingleLeptFromTbar',
-   'das': '/TTGamma_SingleLeptFromTbar_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
-   'nevents': '4945000',
-   'nfiles': '141',
-   'isMC': isMC_,
-   'xs': '0.704',
-   'isSignalMC': 'False',
-})
-data['people'].append({
-   'name': 'TTGamma_DiLept',
-   'das': '/TTGamma_Dilept_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
-   'nevents': '4940000',
-   'nfiles': '151',
-   'isMC': isMC_,
-   'xs': '0.5804',
-   'isSignalMC': isSignalMC_
-})
-data['people'].append({
-   'name': 'TTGamma_Hadronic',
-   'das': '/TTGamma_Hadronic_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
-   'nevents': '4940000',
-   'nfiles': '143',
-   'isMC': isMC_,
-   'xs': '88.29',
-   'isSignalMC': isSignalMC_
-})
-data['people'].append({
-   'name': 'TTTo2L2Nu',
-   'das': '/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
-   'nevents': '64310000',
-   'nfiles': '968',
-   'isMC': isMC_,
-   'xs': '88.29',
-   'isSignalMC': isSignalMC_
-})
-data['people'].append({
-   'name': 'TTToSemiLeptonic',
-   'das': '/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
-   'nevents': '101550000',
-   'nfiles': '1523',
-   'isMC': isMC_,
-   'xs': '365.34',
-   'isSignalMC': isSignalMC_
-})
+#data['people'].append({
+#   'name': 'TTGamma_SingleLeptFromT',
+#   'das': '/TTGamma_SingleLeptFromT_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
+#   'nevents': '4840000',
+#   'nfiles': '140',
+#   'isMC': isMC_,
+#   'xs': '0.704',
+#   'isSignalMC': isSignalMC_
+#})
+#data['people'].append({
+#   'name': 'TTGamma_SingleLeptFromTbar',
+#   'das': '/TTGamma_SingleLeptFromTbar_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
+#   'nevents': '4945000',
+#   'nfiles': '141',
+#   'isMC': isMC_,
+#   'xs': '0.704',
+#   'isSignalMC': 'False',
+#})
+#data['people'].append({
+##   'name': 'TTGamma_DiLept',
+#   'das': '/TTGamma_Dilept_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
+#   'nevents': '4940000',
+#   'nfiles': '151',
+#   'isMC': isMC_,
+#   'xs': '0.5804',
+#   'isSignalMC': isSignalMC_
+#})
+#data['people'].append({
+#   'name': 'TTGamma_Hadronic',
+#   'das': '/TTGamma_Hadronic_TuneCP5_13TeV_madgraph_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
+#   'nevents': '4940000',
+#   'nfiles': '143',
+#   'isMC': isMC_,
+#   'xs': '1.7086', 3.697-0.704-0.704-0.5804
+#   'isSignalMC': isSignalMC_
+#})
+#data['people'].append({
+#   'name': 'TTTo2L2Nu',
+#   'das': '/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+#   'nevents': '64310000',
+#   'nfiles': '968',
+#   'isMC': isMC_,
+#   'xs': '88.29',
+#   'isSignalMC': isSignalMC_
+#})
+#data['people'].append({
+#   'name': 'TTToSemiLeptonic',
+#   'das': '/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+#   'nevents': '101550000',
+#   'nfiles': '1523',
+#   'isMC': isMC_,
+#   'xs': '365.34',
+#   'isSignalMC': isSignalMC_
+#})
 data['people'].append({
    'name': 'ZGToLLG',
    'das': '/ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
    'nevents': '13946364',
    'nfiles': '266',
    'isMC': isMC_,
-   'xs': '117.864',
+   'xs': '16.837021', #32.3*(0.033632+0.033662+0.03696)/.2
    'isSignalMC': isSignalMC_
 })
 data['people'].append({
-   'name': 'WJetsToLNu',
-   'das': '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2/MINIAODSIM',
-   'nevents': '71026861',
-   'nfiles': '990',
+   'name': 'WGToLNuG'
+   'das': '/WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM'
+   'nevents': '6108186',
+   'nfiles': '117',
    'isMC': isMC_,
-   'xs': '61334.9',
+   'xs': '405.271',
    'isSignalMC': isSignalMC_
 })
-data['people'].append({
-   'name': 'QCD_HT50to100',
-   'das': '/QCD_HT50to100_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
-   'nevents': '38754230',
-   'nfiles': '547',
-   'isMC': isMC_,
-   'xs': '19380000.', #FIXME
-   'isSignalMC': isSignalMC_
-})
+#data['people'].append({
+#   'name': 'WJetsToLNu',
+#   'das': '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2/MINIAODSIM',
+#   'nevents': '71026861',
+#   'nfiles': '990',
+#   'isMC': isMC_,
+#   'xs': '61334.9',
+#   'isSignalMC': isSignalMC_
+#})
+#data['people'].append({
+#   'name': 'QCD_HT50to100',
+#   'das': '/QCD_HT50to100_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+#   'nevents': '38754230',
+#   'nfiles': '547',
+#   'isMC': isMC_,
+#   'xs': '19380000.', #FIXME
+#   'isSignalMC': isSignalMC_
+#})
 data['people'].append({
    'name': 'QCD_HT100to200',
    'das': '/QCD_HT100to200_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
@@ -168,15 +186,15 @@ data['people'].append({
    'xs': '120.4',
    'isSignalMC': isSignalMC_
 })
-data['people'].append({
-   'name': 'QCD_HT2000toInf',
-   'das': '/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
-   'nevents': '5475677',
-   'nfiles': '166',
-   'isMC': isMC_,
-   'xs': '25.24',
-   'isSignalMC': isSignalMC_
-})
+#data['people'].append({
+#   'name': 'QCD_HT2000toInf',
+#   'das': '/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+#   'nevents': '5475677',
+#   'nfiles': '166',
+#   'isMC': isMC_,
+#   'xs': '25.24',
+#   'isSignalMC': isSignalMC_
+#})
 
 with open('datasetsBackgrounds.json', 'w') as outfile:
    json.dump(data, outfile)
