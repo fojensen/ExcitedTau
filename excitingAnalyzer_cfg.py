@@ -31,14 +31,17 @@ options.register('isSignalMC',
 
 options.parseArguments()
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v12'
-#process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
+process.load('Configuration.StandardSequences.Services_cff')
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+setupEgammaPostRecoSeq(process,era='2018-Prompt')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-#import FWCore.Utilities.FileUtils as FileUtils
 #infile = './filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list'
 #outfile = "./mcsamples/Taustar_m250.root"
 #infile = './filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list'
@@ -51,8 +54,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #outfile = "./mcsamples/Taustar_m3000.root"
 #infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list'
 #outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
+#import FWCore.Utilities.FileUtils as FileUtils
 #mylist = FileUtils.loadListFromFile(infile)
 #readFiles = cms.untracked.vstring(*mylist)
+
 process.source = cms.Source("PoolSource",
    #fileNames = cms.untracked.vstring("")
    #fileNames = readFiles
@@ -68,9 +73,12 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string("output.root")
 )
 
-#from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-#setupEgammaPostRecoSeq(process,era='2018-Prompt')  
-#a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
+process.goodTaus = cms.EDFilter("TauProducer",
+   tauCollection = cms.InputTag("slimmedTaus"),
+   minpt = cms.double(20.),
+   maxeta = cms.double(2.3),
+   applyFilter = cms.bool(False)
+)
 
 process.goodPhotons = cms.EDFilter("PhotonProducer",
    photonCollection = cms.InputTag("slimmedPhotons"),
@@ -81,7 +89,9 @@ process.goodPhotons = cms.EDFilter("PhotonProducer",
 
 process.goodJets = cms.EDProducer("JetProducer",
    jetCollection = cms.InputTag("slimmedJets"),
-   tauCollection = cms.InputTag("goodTaus:goodTaus")
+   tauCollection = cms.InputTag("goodTaus:goodTaus"),
+   minpt = cms.double(30.),
+   maxeta = cms.double(2.6)
 )
 
 process.goodElectrons = cms.EDFilter("ElectronProducer",
@@ -102,13 +112,6 @@ process.goodMuons = cms.EDFilter("MuonProducer",
    vertexCollection = cms.InputTag("goodVertices"),
    minpt = cms.double(20.),
    maxeta = cms.double(2.4),
-   applyFilter = cms.bool(False)
-)
-
-process.goodTaus = cms.EDFilter("TauProducer",
-   tauCollection = cms.InputTag("slimmedTaus"),
-   minpt = cms.double(20.),
-   maxeta = cms.double(2.3),
    applyFilter = cms.bool(False)
 )
 
@@ -217,12 +220,11 @@ process.options = cms.untracked.PSet(
 mypath = cms.Sequence(
    #process.TauTauFilter
    process.goodTaus
-   * process.genSignalAnalyzer
-   * process.genVisTauProducer
+   * process.egammaPostRecoSeq
+   * process.goodPhotons
    * process.goodVertices
    * process.goodElectrons
    * process.goodMuons
-   * process.goodPhotons
    * process.goodJets
    * process.triggerProducer
    * process.EventAnalyzer
@@ -232,7 +234,7 @@ mypath = cms.Sequence(
 )
 
 if options.isSignalMC:
-   mypath *= cms.Sequence(process.genSignalAnalyzer*process.genVisTauProducer)
+   mypath = process.genSignalAnalyzer * process.genVisTauProducer * mypath
 
 #process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(mypath)

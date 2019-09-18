@@ -19,6 +19,7 @@ class JetProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Jet>> jetToken;
       edm::EDGetTokenT<std::vector<pat::Tau>> tauToken;
+      double maxeta, minpt;
       TH1I *h_nCollection, *h_nJets;
       TH1D *h_jetpt, *h_HT;
 };
@@ -28,6 +29,8 @@ JetProducer::JetProducer(const edm::ParameterSet& iConfig)
    produces<std::vector<pat::Jet>>("goodJets");
    jetToken = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetCollection"));
    tauToken = consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
+   maxeta = iConfig.getParameter<double>("maxeta");
+   minpt = iConfig.getParameter<double>("minpt");
    edm::Service<TFileService> fs;
    h_nCollection = fs->make<TH1I>("h_nCollection", ";# of jets;events / 1", 10, -0.5, 9.5);
    h_nJets = fs->make<TH1I>("h_nJets", ";# of jets;events / 1", 10, -0.5, 9.5);
@@ -53,13 +56,13 @@ void JetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    h_nCollection->Fill(jets->size());
    for (auto i = jets->begin(); i != jets->end(); ++i) {
       bool overlap = false;
-      //for (auto j = taus->begin(); j != taus->end(); ++j) {
-      //   if (reco::deltaR(*i, *j)<0.4) {
-      //      overlap = true;
-      //      break;
-      //   }
-      //}
-      if (!overlap && i->pt()>=30. && std::abs(i->eta())<2.6) {
+      for (auto j = taus->begin(); j != taus->end(); ++j) {
+         if (reco::deltaR(*i, *j)<0.4) {
+            overlap = true;
+            break;
+         }
+      }
+      if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
          const float NHF = i->neutralHadronEnergyFraction();
          const float NEMF = i->neutralEmEnergyFraction();
          const size_t NumConst = i->numberOfDaughters();
@@ -70,7 +73,9 @@ void JetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if (NHF<0.9 && NEMF<0.9 && NumConst>1 && MUF<0.8 && CHF>0. && CHM>0 && CEMF<0.8) {
             h_jetpt->Fill(i->pt());
             HT += i->pt();
-            goodJets->push_back(*i);
+            if (!overlap) {
+               goodJets->push_back(*i);
+            }
          }
       }
    }

@@ -49,9 +49,9 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (i->pt()>=minpt && eta<maxeta) {
          if (eta<1.44||eta>=1.56) {
             if (i->passElectronVeto()) {
-               //if (i->photonID("mvaPhoID-RunIIFall17-v1p1-wp90")) {
+               if (i->photonID("mvaPhoID-RunIIFall17-v1p1-wp90")) {
                   goodPhotons->push_back(*i);
-               //}
+               }
             }
          }
       }
