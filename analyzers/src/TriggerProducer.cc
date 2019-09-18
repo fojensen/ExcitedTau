@@ -22,22 +22,42 @@ class TriggerProducer : public edm::stream::EDFilter<> {
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       bool applyFilter;
-      //std::vector<std::string> goodTriggers;
       edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
       //edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
-      int HLT_Photon200_v, HLT_Photon175_v;
+      //2018
+      int HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v;
+      int HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v;
+      int HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v;
+      int HLT_Photon200_v;
+      //2017
+      int HLT_Photon175_v;
       TTree * tree;
 };
 
 TriggerProducer::TriggerProducer(const edm::ParameterSet& iConfig)
 {
-   //applyFilter = iConfig.getParameter<bool>("applyFilter");
-   //goodTriggers = iConfig.getParameter<std::vector<std::string>>("triggers");
    triggerBits_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
    //triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"));
    edm::Service<TFileService> fs; 
    tree = fs->make<TTree>("tree", "tree");
+   //2018
+   tree->Branch(
+      "HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
+      &HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v, 
+      "HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v/I"
+   );
+   tree->Branch(
+      "HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v",
+      &HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v,
+      "HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v/I"
+   );
+   tree->Branch(
+      "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",
+      &HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v,
+      "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v/I"
+   );
    tree->Branch("HLT_Photon200_v", &HLT_Photon200_v, "HLT_Photon200_v/I");
+   //2017
    tree->Branch("HLT_Photon175_v", &HLT_Photon175_v, "HLT_Photon175_v/I");
 }
 
@@ -50,16 +70,33 @@ bool TriggerProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
    //iEvent.getByToken(triggerPrescales_, triggerPrescales);
 
+   //2018
+   HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v = -1;
+   HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v = -1;
+   HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v = -1;
    HLT_Photon200_v = -1;
-   HLT_Photon175_v = -1; 
+   //2017
+   HLT_Photon175_v = -1;
 
-//   for (auto i = goodTriggers.begin(); i != goodTriggers.end(); ++i) {
-  //    std::string trig1 = *i;
-    //  std::cout << "looking for trigger: " << trig1 << std::endl;
-      for (unsigned int j = 0, n = triggerBits->size(); j < n; ++j) {
-         std::string trig2 = names.triggerName(j);
-         if (trig2.find("HLT_Photon200_v")!=std::string::npos) HLT_Photon200_v = triggerBits->accept(j);
-         if (trig2.find("HLT_Photon175_v")!=std::string::npos) HLT_Photon175_v = triggerBits->accept(j);
+   for (unsigned int j = 0, n = triggerBits->size(); j < n; ++j) {
+      std::string trig2 = names.triggerName(j);
+      //2018
+      if (trig2.find("HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v")!=std::string::npos) {
+                      HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v = triggerBits->accept(j);
+      }
+      if (trig2.find("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v")!=std::string::npos) {
+                      HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v = triggerBits->accept(j);
+      }
+      if (trig2.find("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v")!=std::string::npos) {
+                      HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v = triggerBits->accept(j);
+      }
+      if (trig2.find("HLT_Photon200_v")!=std::string::npos) {
+                      HLT_Photon200_v = triggerBits->accept(j);
+      }
+      //2017
+      if (trig2.find("HLT_Photon175_v")!=std::string::npos) {
+                      HLT_Photon175_v = triggerBits->accept(j);
+      }
       //   if (trig2.find(trig1)!=std::string::npos) {
         //    std::cout << "found trigger:" << names.triggerName(j) << "; prescale: " << triggerPrescales->getPrescaleForIndex(j) << "; accept: " << triggerBits->accept(j) << std::endl;
          //   break;

@@ -4,12 +4,12 @@ process = cms.Process("analysis")
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
-options.register('isMC',
-   False,
-   VarParsing.VarParsing.multiplicity.singleton,
-   VarParsing.VarParsing.varType.bool,
-   "Is MC?"
-) 
+#options.register('isMC',
+#   False,
+#   VarParsing.VarParsing.multiplicity.singleton,
+#   VarParsing.VarParsing.varType.bool,
+#   "Is MC?"
+#) 
 options.register('nevents',
    1,
    VarParsing.VarParsing.multiplicity.singleton,
@@ -26,7 +26,8 @@ options.register('isSignalMC',
    False,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.bool,
-   "Is signal MC?")
+   "Is signal MC?"
+)
 
 options.parseArguments()
 
@@ -35,23 +36,18 @@ options.parseArguments()
 #process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 #import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m750_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m1500_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m2000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m3000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m4000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/Taustar_TauG_L10000_m5000_13TeV-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/QCD_HT200to300_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.list')
-#mylist = FileUtils.loadListFromFile('./filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list')
+#infile = './filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list' outfile = "./mcsamples/Taustar_m250.root"
+#infile = './filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list', outfile = "./mcsamples/Taustar_m500.root"
+#infile = './filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list', outfile = "./mcsamples/Taustar_m1000.root"
+#infile = './filelists/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.list', outfile = "./mcsamples/DYJetsToLL.root"
+#infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list', outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
+#mylist = FileUtils.loadListFromFile(infile)
 #readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
+   #fileNames = cms.untracked.vstring("")
    #fileNames = readFiles
    fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root")
 )
@@ -61,6 +57,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
+   #fileName = cms.string(outfile)
    fileName = cms.string("output.root")
 )
 
@@ -78,9 +75,9 @@ process.goodJets = cms.EDProducer("JetProducer",
 
 process.goodElectrons = cms.EDFilter("ElectronProducer",
    electronCollection = cms.InputTag("slimmedElectrons"),
-   applyFilter = cms.bool(False),
    minpt = cms.double(20.),
    maxeta = cms.double(2.5),
+   applyFilter = cms.bool(False),
 )
 
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -107,10 +104,6 @@ process.goodTaus = cms.EDFilter("TauProducer",
 process.triggerProducer = cms.EDFilter("TriggerProducer",
    bits = cms.InputTag("TriggerResults", "", "HLT"),
    #prescales = cms.InputTag("patTrigger"),
-   #triggers = cms.vstring(
-   #   "HLT_Photon200_v",
-   #   "HLT_Photon175_v",
-   #),
    #applyFilter = cms.bool(False)
 )
 
@@ -132,15 +125,16 @@ process.osETauPairProducer = cms.EDProducer("LeptonPairProducer",
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
    photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(20.),
-   maxeta_lepton = cms.double(2.5),
-   minpt_tau = cms.double(20.),
-   maxeta_tau = cms.double(2.3),
-   minpt_photon = cms.double(20.),
+   minpt_lepton = cms.double(24.),
+   maxeta_lepton = cms.double(2.1),
+   minpt_tau = cms.double(30.),
+   maxeta_tau = cms.double(2.1),
+   minpt_photon = cms.double(24.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isMC),
+   isMC = cms.bool(options.isSignalMC),
+   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osETauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osETauPairProducer:visibleTaus"),
@@ -155,14 +149,15 @@ process.osMuTauPairProducer = cms.EDProducer("LeptonPairProducer",
    metCollection = cms.InputTag("slimmedMETs"),
    photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
    minpt_lepton = cms.double(20.),
-   maxeta_lepton = cms.double(2.4),
-   minpt_tau = cms.double(25.),
+   maxeta_lepton = cms.double(2.1),
+   minpt_tau = cms.double(27.),
    maxeta_tau = cms.double(2.1),
-   minpt_photon = cms.double(20.),
+   minpt_photon = cms.double(24.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),   
-   isMC = cms.bool(options.isMC),
+   isMC = cms.bool(options.isSignalMC),
+   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osMuTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osMuTauPairProducer:visibleTaus"),
@@ -176,15 +171,15 @@ process.osTauTauPairProducer = cms.EDProducer("LeptonPairProducer",
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
    photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
-   minpt_lepton = cms.double(20.),
-   maxeta_lepton = cms.double(2.3),
-   minpt_tau = cms.double(20.),
-   maxeta_tau = cms.double(2.3),
-   minpt_photon = cms.double(20.),
+   minpt_lepton = cms.double(35.),
+   maxeta_lepton = cms.double(2.1),
+   minpt_tau = cms.double(35.),
+   maxeta_tau = cms.double(2.1),
+   minpt_photon = cms.double(24.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
-   isMC = cms.bool(options.isMC),
+   isMC = cms.bool(options.isSignalMC),
+   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osTauTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osTauTauPairProducer:visibleTaus"),
@@ -209,9 +204,10 @@ process.options = cms.untracked.PSet(
 )
 
 mypath = cms.Sequence(
-   process.TauTauFilter
+   #process.TauTauFilter
+   process.goodTaus
+   * process.genSignalAnalyzer
    * process.genVisTauProducer
-   * process.goodTaus
    * process.goodVertices
    * process.goodElectrons
    * process.goodMuons
@@ -224,10 +220,8 @@ mypath = cms.Sequence(
    * process.osTauTauPairProducer * process.osTauTauPairAnalyzer
 )
 
-if options.isMC:
-   mypath *= cms.Sequence(process.genVisTauProducer)
 if options.isSignalMC:
-   mypath *= cms.Sequence(process.genSignalAnalyzer)
+   mypath *= cms.Sequence(process.genSignalAnalyzer*process.genVisTauProducer)
 
 #process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(mypath)
