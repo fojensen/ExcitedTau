@@ -175,9 +175,16 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       const double cos0M = cos(dphi(tau_vis.phi(), METphi));
       const double cos1M = cos(dphi(lepton_vis.phi(), METphi));
       const double cos01 = cos(dphi(tau_vis.phi(), lepton_vis.phi()));
-      const double nu0mag = METpt * (cos0M-cos1M*cos01) / (1.-cos01*cos01);
-      const double nu1mag = (METpt*cos1M) - (nu0mag*cos01);
+      double nu0mag = METpt * (cos0M-cos1M*cos01) / (1.-cos01*cos01);
+      double nu1mag = (METpt*cos1M) - (nu0mag*cos01);
    
+      double nu0mag_check = METpt*sin(METphi-lepton_vis.phi())/sin(tau_vis.phi()-lepton_vis.phi());
+      double nu1mag_check = METpt*sin(METphi-tau_vis.phi())/sin(lepton_vis.phi()-tau_vis.phi());
+
+      //It has been verified analytically that these methods give the same answer, so the next two lines do nothing
+      if (nu0mag_check != nu0mag) nu0mag = nu0mag_check;
+      if (nu1mag_check != nu1mag) nu1mag = nu1mag_check;
+
       PolarLorentzVector nu0;
       nu0.SetEta(tau_vis.eta());
       nu0.SetPhi(tau_vis.phi());
