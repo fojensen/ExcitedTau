@@ -2,7 +2,6 @@
 #include <memory>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -12,31 +11,27 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 typedef math::PtEtaPhiMLorentzVectorD PolarLorentzVector;
-//#include <TH2D.h>
 #include <TTree.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-//class GenVisTauProducer : public edm::global::EDProducer<> {
 class GenVisTauProducer : public edm::EDProducer {
 public:
 	explicit GenVisTauProducer(const edm::ParameterSet&);
 private:
    void produce(edm::Event&, const edm::EventSetup&) override;
    edm::EDGetTokenT<std::vector<reco::GenParticle>> genParticleTok_;
-   //TH2D *h_leadpt, *h_subleadpt;
-   //TH1D *h_scale_lead, *h_scale_sublead;
-   //TH1D *h_dr_lead, *h_dr_sublead;
-   //TH1D * h_photonpt;
    TTree * tree;
    double leadvis_pt, leadvis_eta, leadvis_phi, leadvis_mass;
-   //double leadinv_pt, leadinv_eta, leadinv_phi, leadinv_mass;
+   double leadinv_pt, leadinv_eta, leadinv_phi, leadinv_mass;
    double sublvis_pt, sublvis_eta, sublvis_phi, sublvis_mass;
-   double photon_pt, photon_eta;
+   double sublinv_pt, sublinv_eta, sublinv_phi, sublinv_mass;
+   int visPlus_n, invPlus_n, visMinus_n, invMinus_n;
+   double photon_pt, photon_eta, photon_phi;
    int leadvis_pdgid, sublvis_pdgid;
    int dm;
-   //double sublinv_pt, subleinv_eta, subleinv_phi, leadinv_mass;
+   double vismass, mass;
 };
 
 GenVisTauProducer::GenVisTauProducer(const edm::ParameterSet& iConfig)
@@ -48,22 +43,34 @@ GenVisTauProducer::GenVisTauProducer(const edm::ParameterSet& iConfig)
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
+   // lead (visible) daughter
    tree->Branch("leadvis_pt", &leadvis_pt, "leadvis_pt/D");
    tree->Branch("leadvis_eta", &leadvis_eta, "leadvis_eta/D");
+   tree->Branch("leadvis_phi", &leadvis_phi, "leadvis_phi/D");
    tree->Branch("leadvis_pdgid", &leadvis_pdgid, "leadvis_pdgid/I");
-   tree->Branch("sublvis_pt", &sublvis_pt, "sublvis_pt/D");
+   tree->Branch("leadinv_pt", &leadinv_pt, "leadinv_pt/D");
+   tree->Branch("leadinv_eta", &leadinv_eta, "leadinv_eta/D");
+   tree->Branch("leadinv_phi", &leadinv_phi, "leadinv_phi/D");
+   // sublead (visible) daughter
+   tree->Branch("sublvis_phi", &sublvis_phi, "sublvis_phi/D");
    tree->Branch("sublvis_eta", &sublvis_eta, "sublvis_eta/D");
+   tree->Branch("sublvis_phi", &sublvis_phi, "sublvis_phi/D");
    tree->Branch("sublvis_pdgid", &sublvis_pdgid, "sublvis_pdgid/I");
-   tree->Branch("dm", &dm, "dm/I");
+   tree->Branch("sublinv_pt", &sublinv_pt, "sublvis_pt/D");
+   tree->Branch("sublinv_eta", &sublinv_eta, "sublinv_eta/D");
+   tree->Branch("sublinv_phi", &sublinv_phi, "sublinv_phi/D");
+   // else
+   tree->Branch("dm", &dm, "dm/I"); 
+   tree->Branch("vismass", &vismass, "vismass/D");
+   tree->Branch("mass", &mass, "mass/D");
+   tree->Branch("visPlus_n", &visPlus_n, "visPlus_n/I");
+   tree->Branch("invPlus_n", &invPlus_n, "invPlus_n/I");
+   tree->Branch("visMinus_n", &visMinus_n, "visMinus_n/I");
+   tree->Branch("invMinus_n", &invMinus_n, "invMinus_n/I"); 
+   // photon
    tree->Branch("photon_pt", &photon_pt, "photon_pt/D");
    tree->Branch("photon_eta", &photon_eta, "photon_eta/D");
-   //h_leadpt = fs->make<TH2D>("h_leadpt", ";leading #tau_{vis} p_{T} [GeV];#tau_{inv} p_{T} [GeV]", 10, 0., 200., 10, 0., 200.);
-   //h_subleadpt = fs->make<TH2D>("h_subleadpt", ";subleading #tau_{vis} p_{T} [GeV];#tau_{inv} p_{T} [GeV]", 10, 0., 200., 10, 0., 200.);
-   //h_scale_lead = fs->make<TH1D>("h_scale_lead", ";;", 20, 0., 2.);
-   //h_scale_sublead = fs->make<TH1D>("h_scale_sublead", ";;", 20, 0., 2.);
-   //h_dr_lead = fs->make<TH1D>("h_dr_lead", ";#deltaR(leading #tau_{vis}, #tau_{inv});events / 0.05", 24, 0., 1.2);
-   //h_dr_sublead = fs->make<TH1D>("h_dr_sublead", ";#deltaR(subleading #tau_{vis}, #tau_{inv});events / 0.05", 24, 0., 1.2);
-   
+   tree->Branch("photon_phi", &photon_phi, "photon_phi/D");
 }
 
 void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -87,41 +94,45 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<std::vector<reco::GenParticle>> genParticles;
    iEvent.getByToken(genParticleTok_, genParticles);
  
-   photon_pt = 0.;
-   photon_eta = 0.;
+   photon_pt = photon_eta = 0.;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
       if (i->pdgId()==22 && i->mother()) {
          if (std::abs(i->mother()->pdgId())==4000015) {
             photon_pt = i->pt();
             photon_eta = i->eta();
+            photon_phi = i->phi();
          }
       }
    }
 
+   invMinus_n = visMinus_n = invPlus_n = visPlus_n = 0;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
-      if (i->mother()) {
-         if (i->mother()->pdgId()!=i->pdgId()) { // isLastCopy()
-            const int id = std::abs(i->pdgId());
-            // tau minus
-            if (i->mother()->pdgId()==15) {
+      const int id = std::abs(i->pdgId());
+      bool goodid = id==12||id==14||id==16||id==11||id==13||id==22||id==211||id==111;
+      if (goodid && i->mother()) {
+         if (std::abs(i->mother()->pdgId())==15) {
+            if (i->mother()->charge()<0) {
                if (id==12||id==14||id==16) {
                   invMinus.addDaughter(*i);
                   invMinus_ += i->polarP4();
+                  ++invMinus_n;
                } else {
                   visMinus.addDaughter(*i);
                   visMinus_ += i->polarP4();
+                  ++visMinus_n;
                }
                if (id==11) eleMinus=true;
                if (id==13) muoMinus=true;
             }
-            // tau plus
-            if (i->mother()->pdgId()==-15) {
+            if (i->mother()->charge()>0) {
                if (id==12||id==14||id==16) {
                   invPlus.addDaughter(*i);
-                  invPlus_ += i->polarP4();
+                  visPlus_ += i->polarP4();
+                  ++invPlus_n;
                } else {
                   visPlus.addDaughter(*i);
                   visPlus_ += i->polarP4();
+                  ++visPlus_n;
                }
                if (id==11) elePlus=true;
                if (id==13) muoPlus=true;
@@ -167,52 +178,59 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       visPlus.setName("hadronic");
       invPlus.setName("hadronic");
       visPlus.setPdgId(15);
-      invPlus.setPdgId(15);
-   }
+      invPlus.setPdgId(15); 
+  }
+
+   mass =    (visPlus_+visMinus_+invPlus_+invMinus_).mass();
+   vismass = (visPlus_+visMinus_).mass();
 
    auto genVisTaus = std::make_unique<pat::CompositeCandidateCollection>();
    auto genInvTaus = std::make_unique<pat::CompositeCandidateCollection>(); 
-   
+
+   // tau : electron : muon   
    if (visPlus.pt()>=visMinus.pt()) {
 
       leadvis_pt = visPlus.pt();
       leadvis_eta = visPlus.eta();
+      leadvis_phi = visPlus.phi();
       leadvis_pdgid = visPlus.pdgId();
+      leadinv_pt = invPlus.pt();
+      leadinv_eta = invPlus.eta();
+      leadinv_phi = invPlus.phi();
 
       sublvis_pt = visMinus.pt();
       sublvis_eta = visMinus.eta();
+      sublvis_phi = visMinus.phi();
       sublvis_pdgid = visMinus.pdgId();
+      sublinv_pt = invMinus.pt();
+      sublinv_eta = invMinus.eta();
+      sublinv_phi = invMinus.phi();
 
       genVisTaus->push_back(visPlus);
       genVisTaus->push_back(visMinus);
       genInvTaus->push_back(invPlus);
       genInvTaus->push_back(invMinus);
-      //h_leadpt->Fill(visPlus.pt(), invPlus.pt());
-      //h_subleadpt->Fill(visMinus.pt(), invMinus.pt());
-      //h_scale_lead->Fill(invPlus.p()/visPlus.p());
-      //h_scale_sublead->Fill(invMinus.p()/visMinus.p());
-      //h_dr_lead->Fill(reco::deltaR(visPlus, invPlus));
-      //h_dr_sublead->Fill(reco::deltaR(visMinus, invMinus));
    } else {
-
       leadvis_pt = visMinus.pt();
       leadvis_eta = visMinus.eta();
+      leadvis_phi = visMinus.phi();
       leadvis_pdgid = visMinus.pdgId();
+      leadinv_pt = invMinus.pt();
+      leadinv_eta = invMinus.eta();
+      leadinv_phi = invMinus.phi();
 
       sublvis_pt = visPlus.pt();
       sublvis_eta = visPlus.eta();
+      sublvis_phi = visPlus.phi();
       sublvis_pdgid = visPlus.pdgId();
+      sublinv_pt = invPlus.pt();
+      sublinv_eta = invPlus.eta();
+      sublinv_phi = invPlus.phi();
 
       genVisTaus->push_back(visMinus);
       genVisTaus->push_back(visPlus);
       genInvTaus->push_back(invMinus);
       genInvTaus->push_back(invPlus);
-      //h_leadpt->Fill(visMinus.pt(), invMinus.pt());
-      //h_subleadpt->Fill(visPlus.pt(), invPlus.pt());
-      //h_scale_lead->Fill(invMinus.p()/visMinus.p());
-      //h_scale_sublead->Fill(invPlus.p()/visPlus.p());
-      //h_dr_lead->Fill(reco::deltaR(visMinus, invMinus));
-      //h_dr_sublead->Fill(reco::deltaR(visPlus, invPlus));
    }
 
    // *** dm ***
@@ -242,11 +260,11 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //had+had
       if ( !ismu[0] && !isel[0] && !ismu[1] && !isel[1] ) dm = 6;
    }
-   
+
    tree->Fill();
 
-    iEvent.put(std::move(genVisTaus), std::string("genVisTaus"));
-    iEvent.put(std::move(genInvTaus), std::string("genInvTaus"));
+   iEvent.put(std::move(genVisTaus), std::string("genVisTaus"));
+   iEvent.put(std::move(genInvTaus), std::string("genInvTaus"));
 }
 
 //define this as a plug-in

@@ -61,7 +61,6 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("metSignificance", &metSignificance, "metSignificance/D");
    tree->Branch("BTags", BTags, "BTags[3]/b");
    tree->Branch("nVertices", &nVertices, "nVertices/b");
- 
    xsWeight = iConfig.getParameter<double>("xsWeight");
    tree->Branch("xsWeight", &xsWeight, "xsWeight/D");  
 }

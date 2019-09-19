@@ -4,7 +4,7 @@ process = cms.Process("analysis")
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-      '/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m1000_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/CA54CCDC-7DCD-E511-B5CB-00266CF250C4.root'
+      '/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/1CE7319C-3CCE-E511-B917-7845C4FC379D.root'
    )
 )
 

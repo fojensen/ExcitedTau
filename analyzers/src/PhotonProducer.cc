@@ -19,6 +19,7 @@ class PhotonProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Photon>> photonToken_;
       bool applyFilter;
+      double maxeta, minpt;
       TH1I *h_nCollection, *h_nPhotons;
 };
 
@@ -27,6 +28,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& iConfig)
    produces<std::vector<pat::Photon>>("goodPhotons");
    photonToken_ = consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection")); 
    applyFilter = iConfig.getParameter<bool>("applyFilter");
+   maxeta = iConfig.getParameter<double>("maxeta");
+   minpt = iConfig.getParameter<double>("minpt");
    edm::Service<TFileService> fs;
    h_nCollection = fs->make<TH1I>("h_nCollection", ";# of photons;events / 1", 5, -0.5, 4.5);
    h_nPhotons = fs->make<TH1I>("h_nPhotons", ";# of photons;events / 1", 5, -0.5, 4.5);
@@ -43,10 +46,12 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = photons->begin(); i != photons->end(); ++i) {
       const double eta = std::abs(i->eta());
-      if (i->pt()>=20. && eta<2.5) {
-         if (eta<1.479||eta>=1.653) {
+      if (i->pt()>=minpt && eta<maxeta) {
+         if (eta<1.44||eta>=1.56) {
             if (i->passElectronVeto()) {
-               goodPhotons->push_back(*i);
+               if (i->photonID("mvaPhoID-RunIIFall17-v1p1-wp90")) {
+                  goodPhotons->push_back(*i);
+               }
             }
          }
       }
