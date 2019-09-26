@@ -18,6 +18,19 @@
 typedef math::PtEtaPhiMLorentzVectorD PolarLorentzVector;
 #include <TLorentzVector.h>
 
+const reco::Candidate * stable_copy(const reco::Candidate * part){
+  if (part->status() < 3) return part;
+  const reco::Candidate * part2 = 0;
+  for (unsigned int i = 0; i < part->numberOfDaughters(); i++){
+    if (part->pdgId() == part->daughter(i)->pdgId()){
+      part2 = stable_copy(part->daughter(i));
+      break;
+    }
+  }
+  if (part2 == nullptr) part2 = part; 
+  return part2;
+}
+
 class GenSignalAnalyzer : public edm::EDAnalyzer {
 public:
    explicit GenSignalAnalyzer(const edm::ParameterSet&);
@@ -93,16 +106,49 @@ void GenSignalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    PolarLorentzVector excited(0., 0., 0., 0.);
    PolarLorentzVector deexcited(0., 0., 0., 0.);
    PolarLorentzVector spectator(0., 0., 0., 0.);
-   for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
-      const unsigned int id = std::abs(i->pdgId());
-      if (id==4000015 && i->isLastCopy()) excited = i->p4();
-      if (i->mother()) {
-         const unsigned int mid = std::abs(i->mother()->pdgId());
-         if (id==22 && mid==4000015) photon = i->p4();
-         if (id==15 && mid==4000015) deexcited = i->p4();
-         if (id==15 && mid!=4000015 && mid!=15) spectator = i->p4();
+// for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
+//    const unsigned int id = std::abs(i->pdgId());
+//    if (id==4000015) excited = i->p4();
+//    if (i->mother()) {
+//       const unsigned int mid = std::abs(i->mother()->pdgId());
+//       if (id==22 && mid==4000015) photon = i->p4();
+//       if (id==15 && mid==4000015) deexcited = i->p4();
+//       if (id==15 && mid!=4000015 && mid!=15) spectator = i->p4();
+//    }
+// }
+  const reco::Candidate * mother = 0; 
+  for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
+    const unsigned int id = std::abs(i->pdgId());
+    if (id!=4000015) continue;
+    if (mother == nullptr) mother = i->mother();
+    if (!i->isLastCopy()) continue;
+    excited = i->p4();
+    int numDaughters = i->numberOfDaughters();
+    for (int j = 0; j < numDaughters; j++){
+      const reco::Candidate * d = i->daughter(j);
+      int did = std::abs(d->pdgId());
+      if (did == 15){
+        const reco::Candidate * stable_deexcited = stable_copy(d);
+        deexcited = stable_deexcited->p4();
       }
-   }
+      if (did == 22){
+        const reco::Candidate * stable_photon = stable_copy(d);
+        photon = stable_photon->p4();
+      }
+    }
+  }
+  for (auto i = genParticles->begin(); i != genParticles->end(); ++i){
+    if (i->mother() != mother) continue;
+    if (std::abs(i->pdgId()) != 15) continue;
+    if (i->numberOfDaughters() > 0){
+      const reco::Candidate * stable_spectator = stable_copy(i->daughter(0)->mother());
+      spectator = stable_spectator->p4();
+    }
+    else{
+      spectator = i->p4();
+    }
+  }
+   
 
    PolarLorentzVector deexcitedvis(0., 0., 0., 0.);
    PolarLorentzVector spectatorvis(0., 0., 0., 0.);

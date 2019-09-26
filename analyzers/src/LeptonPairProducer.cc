@@ -203,9 +203,14 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       const double cos0M = cos(dphi(tau_vis.phi(), met->at(0).phi()));
       const double cos1M = cos(dphi(lepton_vis.phi(), met->at(0).phi()));
       const double cos01 = cos(dphi(tau_vis.phi(), lepton_vis.phi()));
+
       const double nu0mag = MET.pt() * (cos0M-cos1M*cos01) / (1.-cos01*cos01);
       const double nu1mag = (MET.pt()*cos1M) - (nu0mag*cos01);
  
+      //It has been verified analytically that the expressions above are the same as the expressions below by trig function manipulation
+//      const double nu0mag = METpt*sin(METphi-lepton_vis.phi())/sin(tau_vis.phi()-lepton_vis.phi());
+//      const double nu1mag = METpt*sin(METphi-tau_vis.phi())/sin(lepton_vis.phi()-tau_vis.phi());
+//      
       reco::LeafCandidate tau_inv = reco::LeafCandidate(0, PolarLorentzVector(0., 0., 0., 0.));
       PolarLorentzVector nu0_v;
       nu0_v.SetEta(tau_vis.eta());
