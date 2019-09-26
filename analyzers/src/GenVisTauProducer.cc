@@ -52,11 +52,11 @@ GenVisTauProducer::GenVisTauProducer(const edm::ParameterSet& iConfig)
    tree->Branch("leadinv_eta", &leadinv_eta, "leadinv_eta/D");
    tree->Branch("leadinv_phi", &leadinv_phi, "leadinv_phi/D");
    // sublead (visible) daughter
-   tree->Branch("sublvis_phi", &sublvis_phi, "sublvis_phi/D");
+   tree->Branch("sublvis_pt", &sublvis_pt, "sublvis_pt/D");
    tree->Branch("sublvis_eta", &sublvis_eta, "sublvis_eta/D");
    tree->Branch("sublvis_phi", &sublvis_phi, "sublvis_phi/D");
    tree->Branch("sublvis_pdgid", &sublvis_pdgid, "sublvis_pdgid/I");
-   tree->Branch("sublinv_pt", &sublinv_pt, "sublvis_pt/D");
+   tree->Branch("sublinv_pt", &sublinv_pt, "sublinv_pt/D");
    tree->Branch("sublinv_eta", &sublinv_eta, "sublinv_eta/D");
    tree->Branch("sublinv_phi", &sublinv_phi, "sublinv_phi/D");
    // else
@@ -108,7 +108,8 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    invMinus_n = visMinus_n = invPlus_n = visPlus_n = 0;
    for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
       const int id = std::abs(i->pdgId());
-      bool goodid = id==12||id==14||id==16||id==11||id==13||id==22||id==211||id==111;
+      bool goodid = id==12||id==14||id==16||id==11||id==13||id==22||id==211||id==111||id==321;
+      goodid = goodid || 323; // hack
       if (goodid && i->mother()) {
          if (std::abs(i->mother()->pdgId())==15) {
             if (i->mother()->charge()<0) {
