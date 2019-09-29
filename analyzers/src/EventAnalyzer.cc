@@ -33,7 +33,7 @@ private:
 
    TTree * tree;
    unsigned int nPhotons, nElectrons, nMuons, nTaus;
-   unsigned int BTags[3], NJets;
+   int nBJets[3], NJets;
    unsigned int nJets, nVertices;
    double MET_pt, MET_phi, metSignificance;
    double xsWeight;
@@ -55,11 +55,11 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("nElectrons", &nElectrons, "nElectrons/b");
    tree->Branch("nMuons", &nMuons, "nMuons/b");
    tree->Branch("nTaus", &nTaus, "nTaus/b");
-   tree->Branch("nJets", &nJets, "nJets/b");
+   tree->Branch("nJets", &nJets, "nJets/I");
    tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
    tree->Branch("MET_phi", &MET_phi, "MET_phi/D");
    tree->Branch("metSignificance", &metSignificance, "metSignificance/D");
-   tree->Branch("BTags", BTags, "BTags[3]/b");
+   tree->Branch("nBJets", nBJets, "nBJets[3]/I");
    tree->Branch("nVertices", &nVertices, "nVertices/b");
    xsWeight = iConfig.getParameter<double>("xsWeight");
    tree->Branch("xsWeight", &xsWeight, "xsWeight/D");  
@@ -97,13 +97,13 @@ void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    MET_phi = met->at(0).phi();
    metSignificance = met->at(0).metSignificance();
 
-   BTags[0] = BTags[1] = BTags[2] = 0;
+   nBJets[0] = nBJets[1] = nBJets[2] = 0;
    for (auto i = jets->begin(); i != jets->end(); ++i) {
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
       const float disc = i->bDiscriminator("pfDeepCSVJetTags:probb")+i->bDiscriminator("pfDeepCSVJetTags:probbb");
-      if (disc>=0.1241) ++BTags[0];
-      if (disc>=0.4184) ++BTags[1];
-      if (disc>=0.7527) ++BTags[2];
+      if (disc>=0.1241) ++nBJets[0];
+      if (disc>=0.4184) ++nBJets[1];
+      if (disc>=0.7527) ++nBJets[2];
    }
 
    tree->Fill();

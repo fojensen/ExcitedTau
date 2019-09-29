@@ -17,6 +17,7 @@ These instructions are pulled from:
 * `git cms-addpkg EgammaAnalysis/ElectronTools`
 * `rm EgammaAnalysis/ElectronTools/data -rf`
 * `git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data`
+* `scram build`
 
 ### Then install the ExcitedTau package
 * `cd CMSSW_10_2_10/src`
@@ -24,16 +25,18 @@ These instructions are pulled from:
 * `cd ExcitedTau/`
 * `scram build`
 
-### run on a test file:
+### Do a test run on a signal file:
 * `cmsRun excitingAnalyzer_cfg.py isSignalMC=True >& log &`
 
 ## To submit jobs/datasets to CRAB:
-datasetsBkg.py and datasetSig.py contain the datasets which will be submitted to crab.  
-`python datasetsBkg.py`
-`python datasetSig.py`
+`datasetsBkg.py` and `datasetSig.py` contain entries which will eventually be submitted to crab.  
+
+`python datasetsBkg.py`  
+`python datasetSig.py`  
 generates JSON files to give to the submission script `submitToCrab.py`.  
+
 Comment/uncomment the appropriate line for signal or background:  
-`https://github.com/fojensen/ExcitedTau/blob/master/submitToCrab.py#L4-L5`, then run  
+`https://github.com/fojensen/ExcitedTau/blob/master/submitToCrab.py#L4-L5`, then run:  
 `python submitToCrab.py`
 If you actually want to submit, uncomment the following line  
 `https://github.com/fojensen/ExcitedTau/blob/master/submitToCrab.py#L36`

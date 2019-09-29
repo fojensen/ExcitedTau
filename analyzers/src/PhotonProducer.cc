@@ -46,14 +46,15 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = photons->begin(); i != photons->end(); ++i) {
       const double eta = std::abs(i->eta());
+      //const double eta = std::abs(i->superCluster().eta());
       if (i->pt()>=minpt && eta<maxeta) {
-         if (eta<1.44||eta>=1.56) {
+         //if (eta<1.479||eta>=1.653) {
             if (i->passElectronVeto()) {
                if (i->photonID("mvaPhoID-RunIIFall17-v1p1-wp90")) {
                   goodPhotons->push_back(*i);
                }
             }
-         }
+         //}
       }
    }
    const size_t nPhotons = goodPhotons->size();
