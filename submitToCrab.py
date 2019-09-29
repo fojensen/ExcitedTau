@@ -29,7 +29,7 @@ with open(infile) as json_file:
       f.write("config.Data.splitting = 'FileBased'\n")
       f.write("config.Data.unitsPerJob = 1\n")
       f.write("config.Data.allowNonValidInputDataset = True\n")
-      f.write("config.Data.outLFNDirBase = '/store/user/fjensen/ExcitedTauProduction_v0")
+      f.write("config.Data.outLFNDirBase = '/store/user/fjensen/ExcitedTauProduction_v0'")
       f.write("\n")
       f.write("config.Site.storageSite = 'T3_US_FNALLPC'\n")
       f.close()
