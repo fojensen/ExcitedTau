@@ -24,7 +24,7 @@ data['people'].append({
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'
 })
-'''data['people'].append({
+data['people'].append({
    'name': 'TTGJets',
    'das': '/TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
    'nevents': '4691915',
@@ -68,7 +68,7 @@ data['people'].append({
    'xs': '1.7086', #3.697-0.704-0.704-0.5804
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'  
-})'''
+})
 data['people'].append({
    'name': 'TTTo2L2Nu',
    'das': '/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
@@ -88,6 +88,24 @@ data['people'].append({
    'applyFilter': 'False'
 })
 data['people'].append({
+   'name': 'TTToHadronic',
+   'das': '/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
+   'nevents': '133808000', ###extension exists
+   'nfiles': '3313',
+   'xs': '377.96',
+   'isSignalMC': isSignalMC_,
+   'applyFilter': 'False'
+}
+data['people'].append({
+   'name': 'TTToHadronic_ext',
+   'das': '',
+   'nevents': '',
+   'nfiles': '',
+   'xs': '377.96',
+   'isSignalMC': isSignalMC_,
+   'applyFilter': 'False'
+}
+data['people'].append({
    'name': 'ST_tW_antitop',
    'das': '/ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v3/MINIAODSIM',
    'nevents': '5823328',
@@ -105,16 +123,16 @@ data['people'].append({
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'
 })
-'''data['people'].append({
+data['people'].append({
    'name': 'ZGToLLG',
    'das': '/ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM',
    'nevents': '13946364',
    'nfiles': '266',
-   'xs': '16.837021', #32.3*(0.033632+0.033662+0.03696)/.2
+   'xs': '16.837021', #(32.3/0.2)*(0.033632+0.033662+0.03696)
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'
-})'''
-'''data['people'].append({
+})
+data['people'].append({
    'name': 'WGToLNuG',
    'das': '/WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
    'nevents': '6108186',
@@ -122,7 +140,7 @@ data['people'].append({
    'xs': '405.271',###
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'
-})'''
+})
 data['people'].append({
    'name': 'WJetsToLNu',
    'das': '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2/MINIAODSIM',
