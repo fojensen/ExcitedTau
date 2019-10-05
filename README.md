@@ -4,7 +4,7 @@ the search for excited tau leptons...
 ## To install the package:
 
 ### Install stuff to calculate DeepTauv2p1
-These instructions are pulled from:
+These instructions are pulled from: 
 `https://twiki.cern.ch/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20`
 
 * `cmsrel CMSSW_10_2_16`
