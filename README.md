@@ -26,7 +26,6 @@ These instructions are pulled from:
 * `scram build`
 
 ### Then install the ExcitedTau package
-* `cd CMSSW_10_2_10/src`
 * `git clone https://github.com/fojensen/ExcitedTau`
 * `cd ExcitedTau/`
 * `scram build`
