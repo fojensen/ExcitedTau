@@ -46,8 +46,10 @@ bool TauProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //https://twiki.cern.ch/CMS/TauIDRecommendation13TeV
    for (auto i = taus->begin(); i != taus->end(); ++i) {
       if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
-         if (i->tauID("againstElectronVLooseMVA6") && i->tauID("againstMuonLoose3")) {
-            if (i->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT") && i->tauID("decayModeFinding")) {
+         //if (i->tauID("againstElectronVLooseMVA6") && i->tauID("againstMuonLoose3")) {
+         //   if (i->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT") && i->tauID("decayModeFinding")) {
+         if (i->tauID("byMediumDeepTau2017v2p1VSjet") && i->tauID("decayModeFindingNewDMs")) {
+            if (i->tauID("byLooseDeepTau2017v2p1VSe") && i->tauID("byLooseDeepTau2017v2p1VSmu")) {
                goodTaus->push_back(*i);
             }
          }

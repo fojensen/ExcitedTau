@@ -61,9 +61,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #mylist = FileUtils.loadListFromFile(infile)
 #readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring("")
+   #fileNames = cms.untracked.vstring("")
    #fileNames = readFiles
-   #fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root")
+   fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -79,8 +79,16 @@ process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(True),
 )
 
+updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Ids
+import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
+                    updatedTauName = updatedTauName,
+                    toKeep = ["deepTau2017v2p1", #deepTau TauIDs
+                               ])
+tauIdEmbedder.runTauID()
+
 process.goodTaus = cms.EDFilter("TauProducer",
-   tauCollection = cms.InputTag("slimmedTaus"),
+   tauCollection = cms.InputTag(updatedTauName),
    minpt = cms.double(20.),
    maxeta = cms.double(2.3),
    applyFilter = cms.bool(options.applyFilter)
@@ -88,6 +96,7 @@ process.goodTaus = cms.EDFilter("TauProducer",
 
 process.goodPhotons = cms.EDFilter("PhotonProducer",
    photonCollection = cms.InputTag("slimmedPhotons"),
+   genParticleCollection = cms.InputTag("prunedGenParticles"),
    minpt = cms.double(20.),
    maxeta = cms.double(2.5),
    applyFilter = cms.bool(False),
@@ -233,7 +242,9 @@ process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
 )
 
 mypath = cms.Sequence(
-   process.egammaPostRecoSeq
+   process.rerunMvaIsolationSequence * getattr(process,updatedTauName)
+   * process.goodTaus
+   * process.egammaPostRecoSeq
    * process.goodPhotons
    * process.goodVertices
    * process.goodElectrons
@@ -259,9 +270,6 @@ if options.isSignalMC:
       bTagDiscriminators = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb']
    )
    mypath = process.genSignalAnalyzer * process.jetSequence * mypath
-
-# keep goodTaus at the front
-mypath = cms.Sequence(process.goodTaus) * mypath
 
 #process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(mypath)

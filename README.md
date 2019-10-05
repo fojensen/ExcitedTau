@@ -3,14 +3,20 @@ the search for excited tau leptons...
 
 ## To install the package:
 
-### First install packages for EGAMMA MVA ID
+### Install stuff to calculate DeepTauv2p1
+These instructions are pulled from:
+`https://twiki.cern.ch/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20`
+
+* `cmsrel CMSSW_10_2_16`
+* `cd CMSSW_10_2_16`
+* `cmsenv`
+* `git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2p1_nanoAOD`
+* `scram b -j 4`
+
+### Then install stuff for EGAMMA MVA ID
 These instructions are pulled from:  
 `https://twiki.cern.ch/CMS/EgammaPostRecoRecipes#2018_Data_MC`
 
-* `cmsrel CMSSW_10_2_10`
-* `cd CMSSW_10_2_10/src`
-* `cmsenv`
-* `git cms-init`
 * `git cms-merge-topic cms-egamma:EgammaPostRecoTools`
 * `git cms-merge-topic cms-egamma:PhotonIDValueMapSpeedup1029`
 * `git cms-merge-topic cms-egamma:slava77-btvDictFix_10210`
