@@ -25,6 +25,10 @@ These instructions are pulled from:
 * `git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data`
 * `scram build`
 
+### Then install the jet toolbox
+`https://twiki.cern.ch/CMS/JetToolbox`
+* `git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_102X_v2`
+
 ### Then install the ExcitedTau package
 * `git clone https://github.com/fojensen/ExcitedTau`
 * `cd ExcitedTau/`

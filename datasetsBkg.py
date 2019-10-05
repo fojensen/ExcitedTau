@@ -95,16 +95,16 @@ data['people'].append({
    'xs': '377.96',
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'
-}
-data['people'].append({
-   'name': 'TTToHadronic_ext',
-   'das': '',
-   'nevents': '',
-   'nfiles': '',
-   'xs': '377.96',
-   'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
-}
+})
+#data['people'].append({
+#   'name': 'TTToHadronic_ext',
+#   'das': '',
+#   'nevents': '',
+#   'nfiles': '',
+#   'xs': '377.96',
+#   'isSignalMC': isSignalMC_,
+#   'applyFilter': 'False'
+#}
 data['people'].append({
    'name': 'ST_tW_antitop',
    'das': '/ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v3/MINIAODSIM',
