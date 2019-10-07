@@ -16,6 +16,7 @@
 #include <TTree.h>
 #include <iostream>
 
+
 class TriggerProducer : public edm::stream::EDFilter<> {
    public:
       explicit TriggerProducer(const edm::ParameterSet&);
@@ -25,18 +26,18 @@ class TriggerProducer : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
       //edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
       //2018
+      //https://twiki.cern.ch/CMS/TauTrigger#Trigger_table_for_2018
       int HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v;
       int HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v;
       int HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v;
-      int HLT_Photon200_v;
-      int HLT_IsoMu24_v;
-      int HLT_IsoTkMu24_v;
-      int HLT_Mu50_v;
-      int HLT_TkMu50_v;
       int HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v;
+      //https://twiki.cern.ch/CMS/MuonHLT2018
+      int HLT_IsoMu24_v;
+      int HLT_Mu50_v, HLT_OldMu100_v, HLT_TkMu100_v;
+      //https://twiki.cern.ch/CMS/EgHLTRunIISummary#2018
       int HLT_Ele32_WPTight_Gsf_v;
-      int HLT_Ele115_CaloIdVT_GsfTrkIdT_v;
-      int HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v;
+      int HLT_Ele115_CaloIdVT_GsfTrkIdT_v, HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v;
+      int HLT_Photon200_v;
       //2017
       int HLT_Photon175_v;
       TTree * tree;
@@ -65,10 +66,11 @@ TriggerProducer::TriggerProducer(const edm::ParameterSet& iConfig)
       "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v/I"
    );
    tree->Branch("HLT_Photon200_v", &HLT_Photon200_v, "HLT_Photon200_v/I");
+   // muon
    tree->Branch("HLT_IsoMu24_v", &HLT_IsoMu24_v, "HLT_IsoMu24_v/I");
-   tree->Branch("HLT_IsoTkMu24_v", &HLT_IsoTkMu24_v, "HLT_IsoTkMu24_v/I");
    tree->Branch("HLT_Mu50_v", &HLT_Mu50_v, "HLT_Mu50_v/I");
-   tree->Branch("HLT_TkMu50_v", &HLT_TkMu50_v, "HLT_TkMu50_v/I");
+   tree->Branch("HLT_OldMu100_v", &HLT_OldMu100_v, "HLT_OldMu100_v/I");
+   tree->Branch("HLT_TkMu100_v", &HLT_TkMu100_v, "HLT_TkMu100_v/I");
    tree->Branch(
       "HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v",
       &HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v,
@@ -96,7 +98,7 @@ bool TriggerProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v = -1;
    HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v = -1;
    HLT_Photon200_v = -1;
-   HLT_IsoMu24_v = HLT_IsoTkMu24_v = HLT_Mu50_v = HLT_TkMu50_v = -1;
+   HLT_IsoMu24_v = HLT_Mu50_v =  HLT_OldMu100_v = HLT_TkMu100_v = -1;
    HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v = -1;
    HLT_Ele32_WPTight_Gsf_v = HLT_Ele115_CaloIdVT_GsfTrkIdT_v = HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v = -1;
    //2017
@@ -121,14 +123,14 @@ bool TriggerProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (trig2.find("HLT_IsoMu24_v")!=std::string::npos) {
                       HLT_IsoMu24_v = triggerBits->accept(j);
       }
-      if (trig2.find("HLT_IsoTkMu24_v")!=std::string::npos) {
-                      HLT_IsoTkMu24_v = triggerBits->accept(j);
-      }
       if (trig2.find("HLT_Mu50_v")!=std::string::npos) {
                       HLT_Mu50_v = triggerBits->accept(j);
       }
-      if (trig2.find("HLT_TkMu50_v")!=std::string::npos) {
-                      HLT_TkMu50_v = triggerBits->accept(j);
+      if (trig2.find("HLT_OldMu100_v")!=std::string::npos) {
+                      HLT_OldMu100_v = triggerBits->accept(j);
+      }
+      if (trig2.find("HLT_TkMu100_v")!=std::string::npos) {
+                      HLT_TkMu100_v = triggerBits->accept(j);
       }
       if (trig2.find("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v")!=std::string::npos) {
                       HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v = triggerBits->accept(j);

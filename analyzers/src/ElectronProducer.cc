@@ -49,7 +49,7 @@ bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //const double eta = std::abs(i->superCluster.eta());
       if (i->pt()>=minpt && eta<maxeta) {
          //if (eta<1.479||eta>=1.653) {
-            if (i->electronID("mvaEleID-Fall17-iso-V1-wp90")) {
+            if (i->electronID("mvaEleID-Fall17-iso-V1-wp80")) {
                goodElectrons->push_back(*i);
             }
          //}

@@ -4,9 +4,7 @@ the search for excited tau leptons...
 ## To install the package:
 
 ### Install stuff to calculate DeepTauv2p1
-These instructions are pulled from: 
-`https://twiki.cern.ch/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20`
-
+`https://twiki.cern.ch/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20` 
 * `cmsrel CMSSW_10_2_16`
 * `cd CMSSW_10_2_16`
 * `cmsenv`
@@ -14,9 +12,7 @@ These instructions are pulled from:
 * `scram b -j 4`
 
 ### Then install stuff for EGAMMA MVA ID
-These instructions are pulled from:  
-`https://twiki.cern.ch/CMS/EgammaPostRecoRecipes#2018_Data_MC`
-
+`https://twiki.cern.ch/CMS/EgammaPostRecoRecipes#2018_Data_MC` 
 * `git cms-merge-topic cms-egamma:EgammaPostRecoTools`
 * `git cms-merge-topic cms-egamma:PhotonIDValueMapSpeedup1029`
 * `git cms-merge-topic cms-egamma:slava77-btvDictFix_10210`
@@ -26,10 +22,11 @@ These instructions are pulled from:
 * `scram build`
 
 ### Then install the jet toolbox
-`https://twiki.cern.ch/CMS/JetToolbox`
+`https://twiki.cern.ch/CMS/JetToolbox` 
 * `git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_102X_v2`
 
 ### Then install the ExcitedTau package
+`https://github.com/fojensen/ExcitedTau` 
 * `git clone https://github.com/fojensen/ExcitedTau`
 * `cd ExcitedTau/`
 * `scram build`

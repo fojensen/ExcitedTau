@@ -67,7 +67,7 @@ data['people'].append({
    'nfiles': '143',
    'xs': '1.7086', #3.697-0.704-0.704-0.5804
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'  
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'TTTo2L2Nu',
@@ -90,20 +90,20 @@ data['people'].append({
 data['people'].append({
    'name': 'TTToHadronic',
    'das': '/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
-   'nevents': '133808000', ###extension exists
+   'nevents': '133808000',
    'nfiles': '3313',
    'xs': '377.96',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 #data['people'].append({
 #   'name': 'TTToHadronic_ext',
-#   'das': '',
-#   'nevents': '',
-#   'nfiles': '',
+#   'das': '/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext2-v2/MINIAODSIM',
+#   'nevents': '199524000',
+#   'nfiles': '3762',
 #   'xs': '377.96',
 #   'isSignalMC': isSignalMC_,
-#   'applyFilter': 'False'
+#   'applyFilter': 'True'
 #}
 data['people'].append({
    'name': 'ST_tW_antitop',
@@ -150,14 +150,14 @@ data['people'].append({
    'isSignalMC': isSignalMC_,
    'applyFilter': 'False'
 })
-'''data['people'].append({
+data['people'].append({
    'name': 'GJets_HT-40To100',
    'das': '/GJets_HT-40To100_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM',
    'nevents': '9371355',
    'nfiles': '130',
    'xs': '9226.0',###FIXME
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_HT-100To200',
@@ -166,7 +166,7 @@ data['people'].append({
    'nfiles': '163',
    'xs': '9226.0',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_HT-200To400',
@@ -175,7 +175,7 @@ data['people'].append({
    'nfiles': '312',
    'xs': '2300.0',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_HT-400To600',
@@ -184,7 +184,7 @@ data['people'].append({
    'nfiles': '124',
    'xs': '277.4',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_HT-600ToInf',
@@ -193,7 +193,7 @@ data['people'].append({
    'nfiles': '165',
    'xs': '93.38',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_DR-0p4_HT-100To200',
@@ -202,7 +202,7 @@ data['people'].append({
    'nfiles': '245',
    'xs': '5000.0',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_DR-0p4_HT-200To400',
@@ -211,7 +211,7 @@ data['people'].append({
    'nfiles': '928',
    'xs': '1079.0',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_DR-0p4_HT-400To600',
@@ -220,7 +220,7 @@ data['people'].append({
    'nfiles': '431',
    'xs': '125.9',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'GJets_DR-0p4_HT-600ToInf',
@@ -229,7 +229,7 @@ data['people'].append({
    'nfiles': '390',
    'xs': '43.36',
    'isSignalMC': isSignalMC_,
-   'applyFilter': 'False'
+   'applyFilter': 'True'
 })
 data['people'].append({
    'name': 'QCD_HT50to100',
@@ -312,6 +312,6 @@ data['people'].append({
    'isSignalMC': isSignalMC_,
    'applyFilter': 'True'
 })
-'''
+
 with open('datasetsBkg.json', 'w') as outfile:
    json.dump(data, outfile)

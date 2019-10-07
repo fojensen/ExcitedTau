@@ -17,6 +17,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class EventAnalyzer : public edm::EDAnalyzer {
 public:
@@ -30,10 +31,12 @@ private:
    edm::EDGetTokenT<std::vector<reco::Vertex>> vertexToken_;
    edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
    edm::EDGetTokenT<std::vector<pat::Jet>> jetToken_;
+   edm::EDGetTokenT<std::vector<reco::GenParticle>> genParticleToken_;
 
    TTree * tree;
    unsigned int nPhotons, nElectrons, nMuons, nTaus;
-   int nBJets[3], NJets;
+   unsigned int nPhotons_gen, nElectrons_gen, nMuons_gen, nTaus_gen;
+   int nBJets[3], nBJets_exc[3], NJets;
    unsigned int nJets, nVertices;
    double MET_pt, MET_phi, metSignificance;
    double xsWeight;
@@ -48,6 +51,7 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    vertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
    metToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metCollection"));
    jetToken_ = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetCollection"));
+   genParticleToken_ = consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
@@ -55,11 +59,16 @@ EventAnalyzer::EventAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("nElectrons", &nElectrons, "nElectrons/b");
    tree->Branch("nMuons", &nMuons, "nMuons/b");
    tree->Branch("nTaus", &nTaus, "nTaus/b");
+   tree->Branch("nPhotons_gen", &nPhotons_gen, "nPhotons_gen/b");
+   tree->Branch("nElectrons_gen", &nElectrons_gen, "nElectrons_gen/b");
+   tree->Branch("nMuons_gen", &nMuons_gen, "nMuons_gen/b");
+   tree->Branch("nTaus_gen", &nTaus_gen, "nTaus_gen/b");
    tree->Branch("nJets", &nJets, "nJets/I");
    tree->Branch("MET_pt", &MET_pt, "MET_pt/D");
    tree->Branch("MET_phi", &MET_phi, "MET_phi/D");
    tree->Branch("metSignificance", &metSignificance, "metSignificance/D");
    tree->Branch("nBJets", nBJets, "nBJets[3]/I");
+   tree->Branch("nBJets_exc", nBJets_exc, "nBJets_exc[3]/I");
    tree->Branch("nVertices", &nVertices, "nVertices/b");
    xsWeight = iConfig.getParameter<double>("xsWeight");
    tree->Branch("xsWeight", &xsWeight, "xsWeight/D");  
@@ -97,13 +106,30 @@ void EventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    MET_phi = met->at(0).phi();
    metSignificance = met->at(0).metSignificance();
 
+   nPhotons_gen = nElectrons_gen = nMuons_gen = nTaus_gen = 0;
+   edm::Handle<std::vector<reco::GenParticle>> genParticles;
+   iEvent.getByToken(genParticleToken_, genParticles);
+   for (auto i = genParticles->begin(); i != genParticles->end(); ++i) {
+      if (i->isLastCopy()) {
+         const int id = std::abs(i->pdgId());
+         if (id==11) ++nElectrons_gen;
+         if (id==13) ++nMuons_gen;
+         if (id==15) ++nTaus_gen;
+         if (id==22) ++nPhotons_gen;
+      }
+   }
+
    nBJets[0] = nBJets[1] = nBJets[2] = 0;
+   nBJets_exc[0] = nBJets_exc[1] = nBJets_exc[2] = 0;
    for (auto i = jets->begin(); i != jets->end(); ++i) {
       //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
       const float disc = i->bDiscriminator("pfDeepCSVJetTags:probb")+i->bDiscriminator("pfDeepCSVJetTags:probbb");
       if (disc>=0.1241) ++nBJets[0];
       if (disc>=0.4184) ++nBJets[1];
       if (disc>=0.7527) ++nBJets[2];
+      if (disc>=0.1241 && disc<0.4184) ++nBJets_exc[0];
+      if (disc>=0.4184 && disc<0.7527) ++nBJets_exc[1];
+      if (disc>=0.7527               ) ++nBJets_exc[2]; 
    }
 
    tree->Fill();
