@@ -11,7 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 class MuonProducer : public edm::stream::EDFilter<> {
    public:
@@ -19,18 +19,20 @@ class MuonProducer : public edm::stream::EDFilter<> {
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Muon>> muonToken;
-      //edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertexColl_;
+      edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertexColl_;
       TH1I *h_nCollection, *h_nMuons;
       double minpt, maxeta;
       bool applyFilter;
+      bool isSignalMC;
 };
 
 MuonProducer::MuonProducer(const edm::ParameterSet& iConfig)
 {
    produces<std::vector<pat::Muon>>("goodMuons");
    muonToken = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muonCollection")); 
-   //primaryVertexColl_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
+   primaryVertexColl_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
    applyFilter = iConfig.getParameter<bool>("applyFilter");
+   isSignalMC = iConfig.getParameter<bool>("isSignalMC");
    maxeta = iConfig.getParameter<double>("maxeta");
    minpt = iConfig.getParameter<double>("minpt"); 
    edm::Service<TFileService> fs;
@@ -46,15 +48,25 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(muonToken, muons);
    h_nCollection->Fill(muons->size());
 
-   //edm::Handle<std::vector<reco::Vertex>> goodVertices;
-   //iEvent.getByToken(primaryVertexColl_, goodVertices);
+   edm::Handle<std::vector<reco::Vertex>> goodVertices;
+   iEvent.getByToken(primaryVertexColl_, goodVertices);
    
    //https://twiki.cern.ch/CMS/SWGuideMuonIdRun2
    for (auto i = muons->begin(); i != muons->end(); ++i) {
       if (i->pt()>=minpt && std::abs(i->eta())<maxeta) {
-         if (i->passed(reco::Muon::CutBasedIdTight)) {
-            if (i->passed(reco::Muon::PFIsoMedium)) {
-               goodMuons->push_back(*i);
+         if (!isSignalMC) {
+            if (i->passed(reco::Muon::CutBasedIdTight)) {
+               if (i->passed(reco::Muon::PFIsoMedium)) {
+                  goodMuons->push_back(*i);
+               }
+            }
+         } else {
+            const float iso = i->trackIso()/i->pt();
+            if (iso < 0.1) {
+               const bool id = i->isTightMuon(goodVertices->at(0));
+               if (id) {
+                  goodMuons->push_back(*i);
+               }
             }
          }
       }

@@ -129,6 +129,7 @@ process.goodMuons = cms.EDFilter("MuonProducer",
    vertexCollection = cms.InputTag("goodVertices"),
    minpt = cms.double(27.),
    maxeta = cms.double(2.4),
+   isSignalMC = cms.bool(options.isSignalMC),
    applyFilter = cms.bool(False)
 )
 
