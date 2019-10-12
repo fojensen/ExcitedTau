@@ -1,5 +1,8 @@
 # ExcitedTau
+
 the search for excited tau leptons...
+![alt text](https://github.com/fojensen/ExcitedTau/blob/master/CMS-EXO-14-015_Figure_002-a.png "Logo Title Text 1")
+
 
 ## To install the package:
 
