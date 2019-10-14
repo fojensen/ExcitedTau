@@ -113,7 +113,7 @@ process.goodJets = cms.EDProducer("JetProducer",
 
 process.goodElectrons = cms.EDFilter("ElectronProducer",
    electronCollection = cms.InputTag("slimmedElectrons"),
-   minpt = cms.double(35.),
+   minpt = cms.double(24.),
    maxeta = cms.double(2.5),
    applyFilter = cms.bool(False),
 )
@@ -127,7 +127,7 @@ process.goodVertices = cms.EDFilter("VertexSelector",
 process.goodMuons = cms.EDFilter("MuonProducer",
    muonCollection = cms.InputTag("slimmedMuons"),
    vertexCollection = cms.InputTag("goodVertices"),
-   minpt = cms.double(27.),
+   minpt = cms.double(19.),
    maxeta = cms.double(2.4),
    isSignalMC = cms.bool(options.isSignalMC),
    applyFilter = cms.bool(False)
@@ -273,9 +273,9 @@ process.osTauTauPairProducer = cms.EDProducer("LeptonPairProducer",
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
    metCollection = cms.InputTag("slimmedMETs"),
    photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(20),
+   minpt_lepton = cms.double(20.),
    maxeta_lepton = cms.double(2.3),
-   minpt_tau = cms.double(185.),
+   minpt_tau = cms.double(180.),
    maxeta_tau = cms.double(2.1),
    minpt_photon = cms.double(50.),
    maxeta_photon = cms.double(2.5),
@@ -346,5 +346,6 @@ if options.isSignalMC:
    mypath = process.genSignalAnalyzer * process.jetSequence * mypath
 
 #process.Tracer = cms.Service("Tracer")
+
 process.p = cms.Path(mypath)
 
