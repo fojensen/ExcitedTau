@@ -2,8 +2,8 @@ import json
 import os
 
 #infile = 'datasetsBkg.json'
-#infile = 'datasetsSig.json'
-infile = 'datasetsEmbedding.json'
+infile = 'datasetsSig.json'
+#infile = 'datasetsEmbedding.json'
 
 with open(infile) as json_file:
 
@@ -20,7 +20,7 @@ with open(infile) as json_file:
       f.write("config.General.transferLogs = True\n")
       f.write("\n")
       f.write("config.JobType.pluginName = 'Analysis'\n")
-      f.write("config.JobType.psetName = './excitingAnalyer_cfg.py'\n")
+      f.write("config.JobType.psetName = './excitingAnalyzer_cfg.py'\n")
       if str(p['isMC'])=='False':
          f.write("config.JobType.pyCfgParams = ['applyFilter="+str(p['applyFilter'])+"', 'doSS="+str(p['doSS'])+"']\n")
       else :
@@ -41,5 +41,5 @@ with open(infile) as json_file:
       f.write("config.Site.storageSite = 'T3_US_FNALLPC'\n")
       f.close()
       # comment the next line for a dry run
-      #os.system("crab submit " + f.name)
+      os.system("crab submit " + f.name)
 
