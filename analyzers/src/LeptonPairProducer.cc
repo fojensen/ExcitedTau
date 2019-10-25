@@ -11,6 +11,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <TTree.h>
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -34,19 +36,20 @@ class LeptonPairProducer : public edm::stream::EDProducer<> {
       explicit LeptonPairProducer(const edm::ParameterSet&);
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      edm::EDGetTokenT<edm::View<reco::Candidate>> tauToken_;
+      edm::EDGetTokenT<std::vector<pat::Tau>> tauToken_;
       edm::EDGetTokenT<edm::View<reco::Candidate>> leptonToken_;  
       edm::EDGetTokenT<std::vector<pat::MET>> metToken_;
       edm::EDGetTokenT<edm::View<reco::Candidate>> photonToken_;
-      edm::EDGetTokenT<pat::CompositeCandidateCollection> genVisTauToken_;
+   //   edm::EDGetTokenT<pat::CompositeCandidateCollection> genVisTauToken_;
       int q1q2;
       double maxeta_lepton, minpt_lepton;
       double maxeta_tau, minpt_tau;
+      std::string eVeto_tau, muVeto_tau;
       double maxeta_photon, minpt_photon;
       TTree * tree;
       bool haveTriplet, havePair, havePhoton;
       double deltapt, deltaphi;
-      double gendr_tau, gendr_lepton;
+     // double gendr_tau, gendr_lepton;
 };
 
 LeptonPairProducer::LeptonPairProducer(const edm::ParameterSet& iConfig)
@@ -55,15 +58,17 @@ LeptonPairProducer::LeptonPairProducer(const edm::ParameterSet& iConfig)
    produces<std::vector<pat::CompositeCandidate>>("collinearTaus");
    produces<std::vector<pat::PackedCandidate>>("selectedPhoton");
    
-   tauToken_ =    consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
+   tauToken_ =    consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("tauCollection"));
    leptonToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("leptonCollection")); 
    metToken_ =    consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metCollection")); 
    photonToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
-  
+
    minpt_lepton = iConfig.getParameter<double>("minpt_lepton");
    maxeta_lepton = iConfig.getParameter<double>("maxeta_lepton");
    minpt_tau = iConfig.getParameter<double>("minpt_tau");
    maxeta_tau = iConfig.getParameter<double>("maxeta_tau");
+   eVeto_tau = iConfig.getParameter<std::string>("eVeto_tau");
+   muVeto_tau = iConfig.getParameter<std::string>("muVeto_tau");
    minpt_photon = iConfig.getParameter<double>("minpt_photon");
    maxeta_photon = iConfig.getParameter<double>("maxeta_photon");
    q1q2 = iConfig.getParameter<int>("q1q2");
@@ -76,9 +81,9 @@ LeptonPairProducer::LeptonPairProducer(const edm::ParameterSet& iConfig)
    tree->Branch("deltaphi", &deltaphi, "deltaphi/D");
    tree->Branch("deltapt", &deltapt, "deltapt/D");
    //gen matching
-   genVisTauToken_ = consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("genVisTauCollection"));
-   tree->Branch("gendr_tau", &gendr_tau, "gendr_tau/D");
-   tree->Branch("gendr_lepton", &gendr_lepton, "gendr_lepton/D");
+   //genVisTauToken_ = consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("genVisTauCollection"));
+   //tree->Branch("gendr_tau", &gendr_tau, "gendr_tau/D");
+   //tree->Branch("gendr_lepton", &gendr_lepton, "gendr_lepton/D");
 }
 
 void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -87,7 +92,7 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    auto collinearTaus = std::make_unique<std::vector<pat::CompositeCandidate>>();
    auto photonsOut = std::make_unique<std::vector<pat::PackedCandidate>>();
 
-   edm::Handle<edm::View<reco::Candidate>> taus;
+   edm::Handle<std::vector<pat::Tau>> taus;
    iEvent.getByToken(tauToken_, taus);
 
    edm::Handle<edm::View<reco::Candidate>> leptons;
@@ -102,26 +107,28 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    haveTriplet = havePair = havePhoton = false;
    for (auto i = taus->begin(); i != taus->end(); ++i) {
-      if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
-         for (auto j = leptons->begin(); j != leptons->end(); ++j) {
-            if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
-               if (i->charge()*j->charge()==q1q2) {
-                  for (auto k = photonsIn->begin(); k != photonsIn->end(); ++k) {
-                     if (k->pt()>=minpt_photon && std::abs(k->eta())<maxeta_photon) {
-                        if (reco::deltaR(*i, *j)>=0.4 && reco::deltaR(*i, *k)>=0.4 && reco::deltaR(*j, *k)>=0.4) {
-                           tau_vis.setP4(i->p4());
-                           tau_vis.setCharge(i->charge());
-                           tau_vis.setPdgId(i->pdgId());
-                           lepton_vis.setP4(j->p4());
-                           lepton_vis.setCharge(j->charge());
-                           lepton_vis.setPdgId(j->pdgId());
-                           photon.setP4(k->p4());
-                           photon.setCharge(k->charge());
-                           photon.setPdgId(k->pdgId());
-                           haveTriplet = true;
-                           havePair = true;
-                           havePhoton = true;
-                           break;
+      if (i->tauID(eVeto_tau) && i->tauID(muVeto_tau)) {
+         if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
+            for (auto j = leptons->begin(); j != leptons->end(); ++j) {
+               if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
+                  if (i->charge()*j->charge()==q1q2) {
+                     for (auto k = photonsIn->begin(); k != photonsIn->end(); ++k) {
+                        if (k->pt()>=minpt_photon && std::abs(k->eta())<maxeta_photon) {
+                           if (reco::deltaR(*i, *j)>=0.4 && reco::deltaR(*i, *k)>=0.4 && reco::deltaR(*j, *k)>=0.4) {
+                              tau_vis.setP4(i->p4());
+                              tau_vis.setCharge(i->charge());
+                              tau_vis.setPdgId(i->pdgId());
+                              lepton_vis.setP4(j->p4());
+                              lepton_vis.setCharge(j->charge());
+                              lepton_vis.setPdgId(j->pdgId());
+                              photon.setP4(k->p4());
+                              photon.setCharge(k->charge());
+                              photon.setPdgId(k->pdgId());
+                              haveTriplet = true;
+                              havePair = true;
+                              havePhoton = true;
+                              break;
+                           }
                         }
                      }
                   }
@@ -133,19 +140,21 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    
    if (!haveTriplet) {
       for (auto i = taus->begin(); i != taus->end(); ++i) {
-         if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
-            for (auto j = leptons->begin(); j != leptons->end(); ++j) {
-               if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
-                  if (i->charge()*j->charge()==q1q2) {
-                     if (reco::deltaR(*i, *j)>=0.4) {
-                        tau_vis.setP4(i->p4());
-                        tau_vis.setCharge(i->charge());
-                        tau_vis.setPdgId(i->pdgId());
-                        lepton_vis.setP4(j->p4());
-                        lepton_vis.setCharge(j->charge());
-                        lepton_vis.setPdgId(j->pdgId());
-                        havePair = true;
-                        break;
+         if (i->tauID(eVeto_tau) && i->tauID(muVeto_tau)) {
+            if (i->pt()>=minpt_tau && std::abs(i->eta())<maxeta_tau) {
+               for (auto j = leptons->begin(); j != leptons->end(); ++j) {
+                  if (j->pt()>=minpt_lepton && std::abs(j->eta())<maxeta_lepton) {
+                     if (i->charge()*j->charge()==q1q2) {
+                        if (reco::deltaR(*i, *j)>=0.4) {
+                           tau_vis.setP4(i->p4());
+                           tau_vis.setCharge(i->charge());
+                           tau_vis.setPdgId(i->pdgId());
+                           lepton_vis.setP4(j->p4());
+                           lepton_vis.setCharge(j->charge());
+                           lepton_vis.setPdgId(j->pdgId());
+                           havePair = true;
+                           break;
+                        }
                      }
                   }
                }
@@ -165,9 +174,9 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    if (havePhoton) photonsOut->push_back(photon);
 
-   gendr_tau = gendr_lepton = 9.;
+   //gendr_tau = gendr_lepton = 9.;
    if (havePair) {
-      edm::Handle<pat::CompositeCandidateCollection> genVisTaus;
+      /*edm::Handle<pat::CompositeCandidateCollection> genVisTaus;
       iEvent.getByToken(genVisTauToken_, genVisTaus);
       for (auto i = genVisTaus->begin(); i != genVisTaus->end(); ++i) {
          const int id = std::abs(i->pdgId());
@@ -181,7 +190,7 @@ void LeptonPairProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                gendr_lepton = reco::deltaR(*i, lepton_vis);
             }
          }
-      }
+      }*/
    
       edm::Handle<std::vector<pat::MET>> met;
       iEvent.getByToken(metToken_, met);

@@ -1,7 +1,9 @@
 import json
 
+isMC_ = 'True'
 isSignalMC_ = 'True'
 applyFilter_ = 'False'
+doSS_ = 'False'
 
 data = {}
 data['people'] = []
@@ -12,8 +14,10 @@ data['people'].append({
    'nevents': '20000',
    'nfiles': '9',
    'xs': '0.0177 * 1.285',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m500',
@@ -21,8 +25,10 @@ data['people'].append({
    'nevents': '20000',
    'nfiles': '9',
    'xs': '0.0108 * 1.284',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m750',
@@ -30,8 +36,10 @@ data['people'].append({
    'nevents': '20000',
    'nfiles': '1',
    'xs': '6.639e-3 * 1.277',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name':'Taustar_m1000',
@@ -39,8 +47,10 @@ data['people'].append({
    'nevents': '20000',
    'nfiles': '14',
    'xs': '4.069e-3 * 1.270',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m1250',
@@ -48,8 +58,10 @@ data['people'].append({
    'nevents': '15000',
    'nfiles': '3',
    'xs': '2.494e-3 * 1.264',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m1500',
@@ -57,8 +69,10 @@ data['people'].append({
    'nevents': '14718',
    'nfiles': '16',
    'xs': '1.529e-3 * 1.259',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m1750',
@@ -66,8 +80,10 @@ data['people'].append({
    'nevents': '14188',
    'nfiles': '',
    'xs': '9.371e-4 * 1.256',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m2000',
@@ -75,8 +91,10 @@ data['people'].append({
    'nevents': '14766',
    'nfiles': '2',
    'xs': '5.744e-4 * 1.255',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m2250',
@@ -84,8 +102,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '8',
    'xs': '3.521e-4 * 1.256',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m2500',
@@ -93,8 +113,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '15',
    'xs': '2.159e-4 * 1.260',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m2750',
@@ -102,8 +124,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '8',
    'xs': '1.323e-4 * 1.266',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m3000',
@@ -111,8 +135,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '',
    'xs': '8.12e-5 * 1.275',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m3250',
@@ -120,8 +146,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '3',
    'xs': '4.97e-5 * 1.285',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m3500',
@@ -129,8 +157,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '1',
    'xs': '3.05e-5 * 1.297',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m3750',
@@ -138,8 +168,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '',
    'xs': '1.87e-5 * 1.310',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 data['people'].append({
    'name': 'Taustar_m4000',
@@ -147,8 +179,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '',
    'xs': '1.14e-5 * 1.324',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 #data['people'].append({
 #   'name': 'Taustar_m4250',
@@ -164,8 +198,10 @@ data['people'].append({
    'nevents': '9408',
    'nfiles': '2',
    'xs': '4.30e-6 * 1.356',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 #data['people'].append({
 #   'name': 'Taustar_m4750',
@@ -181,8 +217,10 @@ data['people'].append({
    'nevents': '10000',
    'nfiles': '2',
    'xs': '1.62e-6 * 1.389',
+   'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
-   'applyFilter': applyFilter_
+   'applyFilter': applyFilter_,
+   'doSS': doSS_
 })
 
 with open('datasetsSig.json', 'w') as outfile:

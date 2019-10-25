@@ -26,9 +26,24 @@ options.register('applyFilter',
    False,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.bool,
-   "Apply skim requiring at least 1 tau?"
+   "Apply skim requiring at least 1 loose tau?"
 )
+options.register('isMC',
+   False,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Is this simulation?"
+)
+options.register('doSS',
+   False,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "do SS channels?"
+)
+
 options.parseArguments()
+if options.isSignalMC:
+   options.isMC = True
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
@@ -42,27 +57,7 @@ setupEgammaPostRecoSeq(process,era='2018-Prompt')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-#infile = './filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list'
-#outfile = "./mcsamples/Taustar_m250.root"
-#infile = './filelists/Taustar_TauG_L10000_m500_13TeV-pythia8.list'
-#outfile = "./mcsamples/Taustar_m500.root"
-#infile = './filelists/Taustar_TauG_L10000_m1000_13TeV-pythia8.list'
-#outfile = "./mcsamples/Taustar_m1000.root"
-#infile = './filelists/Taustar_TauG_L10000_m1250_13TeV-pythia8.list'
-#outfile = "./mcsamples/Taustar_m1250.root"
-#infile = './filelists/Taustar_TauG_L10000_m3000_13TeV-pythia8.list'
-#outfile = "./mcsamples/Taustar_m3000.root"
-#infile = './filelists/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.list'
-#outfile = './mcsamples/DYJetsToLL.root'
-#infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list'
-#outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
-
-#import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile(infile)
-#readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
-   #fileNames = cms.untracked.vstring("")
-   #fileNames = readFiles
    fileNames = cms.untracked.vstring("/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root")
 )
 
@@ -71,7 +66,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   #fileName = cms.string(outfile)
    fileName = cms.string("output.root")
 )
 
@@ -152,7 +146,7 @@ process.eventAnalyzer = cms.EDAnalyzer("EventAnalyzer",
    xsWeight = cms.double(xsWeight_)
 )
 
-### mu + mu ###
+'''### mu + mu ###
 process.osMuMuPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodMuons:goodMuons"),
    tauCollection = cms.InputTag("goodMuons:goodMuons"),
@@ -220,11 +214,13 @@ process.osEMuPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    collinearTauCollection = cms.InputTag("osEMuPairProducer:collinearTaus"),
    photonCollection = cms.InputTag("osEMuPairProducer:selectedPhoton")
 )
-
+'''
 ### mu + tau ###
 process.osMuTauPairProducer = cms.EDProducer("LeptonPairProducer",
    leptonCollection = cms.InputTag("goodMuons:goodMuons"),
    tauCollection = cms.InputTag("goodTaus:goodTaus"),
+   eVeto_tau = cms.string("byVVVLooseDeepTau2017v2p1VSe"),
+   muVeto_tau = cms.string("byLooseDeepTau2017v2p1VSmu"),
    metCollection = cms.InputTag("slimmedMETs"),
    photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
    minpt_lepton = cms.double(27.),
@@ -235,8 +231,8 @@ process.osMuTauPairProducer = cms.EDProducer("LeptonPairProducer",
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),   
-   isMC = cms.bool(options.isSignalMC),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
+ #  isMC = cms.bool(options.isSignalMC),
+ #  genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osMuTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osMuTauPairProducer:visibleTaus"),
@@ -254,12 +250,14 @@ process.osETauPairProducer = cms.EDProducer("LeptonPairProducer",
    maxeta_lepton = cms.double(2.5),
    minpt_tau = cms.double(20.),
    maxeta_tau = cms.double(2.3),
+   eVeto_tau = cms.string("byVVLooseDeepTau2017v2p1VSe"),
+   muVeto_tau = cms.string("byVLooseDeepTau2017v2p1VSmu"),
    minpt_photon = cms.double(50.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isSignalMC),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
+   #isMC = cms.bool(options.isSignalMC),
+   #genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osETauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osETauPairProducer:visibleTaus"),
@@ -277,11 +275,13 @@ process.osTauTauPairProducer = cms.EDProducer("LeptonPairProducer",
    maxeta_lepton = cms.double(2.3),
    minpt_tau = cms.double(180.),
    maxeta_tau = cms.double(2.1),
+   eVeto_tau = cms.string("byVVVLooseDeepTau2017v2p1VSe"),
+   muVeto_tau = cms.string("byVLooseDeepTau2017v2p1VSmu"),   
    minpt_photon = cms.double(50.),
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
-   isMC = cms.bool(options.isSignalMC),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
+   #isMC = cms.bool(options.isSignalMC),
+   #genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osTauTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    visibleTauCollection = cms.InputTag("osTauTauPairProducer:visibleTaus"),
@@ -289,16 +289,16 @@ process.osTauTauPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
    photonCollection = cms.InputTag("osTauTauPairProducer:selectedPhoton")
 )
 
-#process.TauTauFilter = cms.EDFilter("TauTauFilter",
-#   genParticleCollection = cms.InputTag("prunedGenParticles")
-#)
-process.genVisTauProducer = cms.EDProducer("GenVisTauProducer",
-   genParticleCollection = cms.InputTag("prunedGenParticles")
-)
-process.genSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
-   genParticleCollection = cms.InputTag("prunedGenParticles"),
-   metCollection = cms.InputTag("slimmedMETs")
-)
+if options.isMC:
+   process.genVisTauProducer = cms.EDProducer("GenVisTauProducer",
+      genParticleCollection = cms.InputTag("prunedGenParticles")
+   )
+   mypath = mypath * process.genVisTauProducer
+if options.isSignalMC:
+   process.genSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
+      genParticleCollection = cms.InputTag("prunedGenParticles"),
+      metCollection = cms.InputTag("slimmedMETs")
+   )
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
@@ -311,21 +311,25 @@ process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
    #status = cms.untracked.vint32(3),
 )
 
+#process.photonAnalyzer = cms.EDFilter("PhotonAnalyzer",
+#   photonCollection = cms.InputTag("slimmedPhotons"),
+#)
+
 mypath = cms.Sequence(
    process.rerunMvaIsolationSequence * getattr(process,updatedTauName)
    * process.goodTaus
    * process.egammaPostRecoSeq
+   #* process.pAnalyzer
    * process.goodPhotons
-   * process.goodVertices
    * process.goodElectrons
+   * process.goodVertices
    * process.goodMuons
    * process.goodJets
    * process.triggerProducer
    * process.eventAnalyzer
-   * process.genVisTauProducer
-   * process.osMuMuPairProducer * process.osMuMuPairAnalyzer
-   * process.osEEPairProducer * process.osEEPairAnalyzer
-   * process.osEMuPairProducer * process.osEMuPairAnalyzer
+   #* process.osMuMuPairProducer * process.osMuMuPairAnalyzer
+   #* process.osEEPairProducer * process.osEEPairAnalyzer
+   #* process.osEMuPairProducer * process.osEMuPairAnalyzer
    * process.osMuTauPairProducer * process.osMuTauPairAnalyzer
    * process.osETauPairProducer * process.osETauPairAnalyzer
    * process.osTauTauPairProducer * process.osTauTauPairAnalyzer
@@ -344,6 +348,32 @@ if options.isSignalMC:
       bTagDiscriminators = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb']
    )
    mypath = process.genSignalAnalyzer * process.jetSequence * mypath
+
+if options.doSS:
+   ### mu + tau ###
+   process.ssMuTauPairProducer = process.osMuTauPairProducer.clone()
+   process.ssMuTauPairProducer.q1q2 = cms.int32(1)
+   process.ssMuTauPairAnalyzer = process.osMuTauPairAnalyzer.clone()
+   process.ssMuTauPairAnalyzer.visibleTauCollection = cms.InputTag("ssMuTauPairProducer:visibleTaus")
+   process.ssMuTauPairAnalyzer.collinearTauCollection = cms.InputTag("ssMuTauPairProducer:collinearTaus")
+   process.ssMuTauPairAnalyzer.photonCollection = cms.InputTag("ssMuTauPairProducer:selectedPhoton")
+   mypath = mypath * process.ssMuTauPairProducer * process.ssMuTauPairAnalyzer
+   ### e + tau ###
+   process.ssETauPairProducer = process.osETauPairProducer.clone()
+   process.ssETauPairProducer.q1q2 = cms.int32(1)
+   process.ssETauPairAnalyzer = process.osETauPairAnalyzer.clone()
+   process.ssETauPairAnalyzer.visibleTauCollection = cms.InputTag("ssETauPairProducer:visibleTaus")
+   process.ssETauPairAnalyzer.collinearTauCollection = cms.InputTag("ssETauPairProducer:collinearTaus")
+   process.ssETauPairAnalyzer.photonCollection = cms.InputTag("ssETauPairProducer:selectedPhoton")
+   mypath = mypath * process.ssETauPairProducer * process.ssETauPairAnalyzer
+   ### tau + tau ###
+   process.ssTauTauPairProducer = process.osTauTauPairProducer.clone()
+   process.ssTauTauPairProducer.q1q2 = cms.int32(1)
+   process.ssTauTauPairAnalyzer = process.osTauTauPairAnalyzer.clone()
+   process.ssTauTauPairAnalyzer.visibleTauCollection = cms.InputTag("ssTauTauPairProducer:visibleTaus")
+   process.ssTauTauPairAnalyzer.collinearTauCollection = cms.InputTag("ssTauTauPairProducer:collinearTaus")
+   process.ssTauTauPairAnalyzer.photonCollection = cms.InputTag("ssTauTauPairProducer:selectedPhoton")
+   mypath = mypath * process.ssTauTauPairProducer * process.ssTauTauPairAnalyzer
 
 #process.Tracer = cms.Service("Tracer")
 
