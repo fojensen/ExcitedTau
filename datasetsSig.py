@@ -78,7 +78,7 @@ data['people'].append({
    'name': 'Taustar_m1750',
    'das': '/Taustar_TauG_L10000_m1750_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM',
    'nevents': '14188',
-   'nfiles': '',
+   'nfiles': '2',
    'xs': '9.371e-4 * 1.256',
    'isMC' : isMC_,
    'isSignalMC': isSignalMC_,
