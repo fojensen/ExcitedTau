@@ -24,7 +24,6 @@ the search for excited tau leptons...
 
 ### Then install the jet toolbox
 `https://twiki.cern.ch/CMS/JetToolbox`
-* `cd ../`
 * `git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_102X_v2`
 
 ### Then install the ExcitedTau package
