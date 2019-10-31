@@ -28,7 +28,6 @@ the search for excited tau leptons...
 
 ### Then install the ExcitedTau package
 `https://github.com/fojensen/ExcitedTau` 
-* `cd ../`
 * `git clone https://github.com/fojensen/ExcitedTau`
 * `cd ExcitedTau/`
 * `scram build`
