@@ -8,8 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 // new includes
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
 class PhotonProducer : public edm::stream::EDFilter<> {
@@ -20,7 +18,6 @@ class PhotonProducer : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<std::vector<pat::Photon>> photonToken_;
       bool applyFilter;
       double maxeta, minpt;
-      TH1I *h_nCollection, *h_nPhotons;
 };
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& iConfig)
@@ -30,9 +27,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& iConfig)
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    maxeta = iConfig.getParameter<double>("maxeta");
    minpt = iConfig.getParameter<double>("minpt");
-   edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of photons;events / 1", 5, -0.5, 4.5);
-   h_nPhotons = fs->make<TH1I>("h_nPhotons", ";# of photons;events / 1", 5, -0.5, 4.5);
 }
 
 bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -41,7 +35,6 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<std::vector<pat::Photon>> photons;
    iEvent.getByToken(photonToken_, photons);
-   h_nCollection->Fill(photons->size());
 
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = photons->begin(); i != photons->end(); ++i) {
@@ -57,9 +50,8 @@ bool PhotonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          //}
       }
    }
-   const size_t nPhotons = goodPhotons->size();
-   h_nPhotons->Fill(nPhotons);
 
+   const size_t nPhotons = goodPhotons->size();
    iEvent.put(std::move(goodPhotons), std::string("goodPhotons"));  
    if (applyFilter) return nPhotons;
    return true;

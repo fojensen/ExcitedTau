@@ -8,8 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 // new includes
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 class ElectronProducer : public edm::stream::EDFilter<> {
@@ -20,7 +18,6 @@ class ElectronProducer : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<std::vector<pat::Electron>> electronToken;
       bool applyFilter;
       double maxeta, minpt;
-      TH1I *h_nCollection, *h_nElectrons;
 };
 
 ElectronProducer::ElectronProducer(const edm::ParameterSet& iConfig)
@@ -30,9 +27,6 @@ ElectronProducer::ElectronProducer(const edm::ParameterSet& iConfig)
    applyFilter = iConfig.getParameter<bool>("applyFilter");
    maxeta = iConfig.getParameter<double>("maxeta");
    minpt = iConfig.getParameter<double>("minpt");
-   edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of electrons;events / 1", 4, -0.5, 4.5);
-   h_nElectrons = fs->make<TH1I>("h_nElectrons", ";# of electrons;events / 1", 4, -0.5, 4.5);
 }
 
 bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -41,7 +35,6 @@ bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<std::vector<pat::Electron>> electrons;
    iEvent.getByToken(electronToken, electrons);
-   h_nCollection->Fill(electrons->size());
 
    //https://twiki.cern.ch/CMS/EgammaIDRecipesRun2
    for (auto i = electrons->begin(); i != electrons->end(); ++i) {
@@ -56,10 +49,8 @@ bool ElectronProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }
 
-   const size_t nElectrons = goodElectrons->size();
-   h_nElectrons->Fill(nElectrons);
+   int nElectrons = goodElectrons->size();
    iEvent.put(std::move(goodElectrons), std::string("goodElectrons"));
-
    if (applyFilter) return nElectrons;
    return true;
 }

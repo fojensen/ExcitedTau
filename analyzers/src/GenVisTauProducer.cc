@@ -32,6 +32,9 @@ private:
    int leadvis_pdgid, sublvis_pdgid;
    int dm;
    double vismass, mass;
+   double visvisdr, leadvisphotondr, subleadvisphotondr;
+   //signal
+   double leadphotondr, subleadphotondr;
 };
 
 GenVisTauProducer::GenVisTauProducer(const edm::ParameterSet& iConfig)
@@ -63,6 +66,9 @@ GenVisTauProducer::GenVisTauProducer(const edm::ParameterSet& iConfig)
    tree->Branch("dm", &dm, "dm/I"); 
    tree->Branch("vismass", &vismass, "vismass/D");
    tree->Branch("mass", &mass, "mass/D");
+   tree->Branch("visvisdr", &visvisdr, "visvisdr/D");
+   tree->Branch("leadvisphotondr", &leadvisphotondr, "leadvisphotondr/D");
+   tree->Branch("subleadvisphotondr", &subleadvisphotondr, "subleadvisphotondr/D");
    tree->Branch("visPlus_n", &visPlus_n, "visPlus_n/I");
    tree->Branch("invPlus_n", &invPlus_n, "invPlus_n/I");
    tree->Branch("visMinus_n", &visMinus_n, "visMinus_n/I");
@@ -147,6 +153,8 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    invMinus.setP4(invMinus_);
    invPlus.setP4(invPlus_);
 
+   visvisdr = reco::deltaR(visMinus, visPlus);
+
    //(condition) ? (if_true) : (if_false)
 
    if (eleMinus) {
@@ -188,6 +196,8 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    auto genVisTaus = std::make_unique<pat::CompositeCandidateCollection>();
    auto genInvTaus = std::make_unique<pat::CompositeCandidateCollection>(); 
 
+   const PolarLorentzVector photon(photon_pt, photon_eta, photon_phi, 0.);
+
    // tau : electron : muon   
    if (visPlus.pt()>=visMinus.pt()) {
 
@@ -206,6 +216,9 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       sublinv_pt = invMinus.pt();
       sublinv_eta = invMinus.eta();
       sublinv_phi = invMinus.phi();
+
+      leadvisphotondr = reco::deltaR(visPlus, photon);
+      subleadvisphotondr = reco::deltaR(visMinus, photon);
 
       genVisTaus->push_back(visPlus);
       genVisTaus->push_back(visMinus);
@@ -227,6 +240,9 @@ void GenVisTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       sublinv_pt = invPlus.pt();
       sublinv_eta = invPlus.eta();
       sublinv_phi = invPlus.phi();
+
+      leadvisphotondr = reco::deltaR(visMinus, photon);
+      subleadvisphotondr = reco::deltaR(visPlus, photon);
 
       genVisTaus->push_back(visMinus);
       genVisTaus->push_back(visPlus);

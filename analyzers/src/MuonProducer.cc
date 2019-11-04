@@ -20,7 +20,6 @@ class MuonProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<std::vector<pat::Muon>> muonToken;
       edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertexColl_;
-      TH1I *h_nCollection, *h_nMuons;
       double minpt, maxeta;
       bool applyFilter;
       bool isSignalMC;
@@ -35,9 +34,6 @@ MuonProducer::MuonProducer(const edm::ParameterSet& iConfig)
    isSignalMC = iConfig.getParameter<bool>("isSignalMC");
    maxeta = iConfig.getParameter<double>("maxeta");
    minpt = iConfig.getParameter<double>("minpt"); 
-   edm::Service<TFileService> fs;
-   h_nCollection = fs->make<TH1I>("h_nCollection", ";# of muons;events / 1", 5, -0.5, 4.5);
-   h_nMuons = fs->make<TH1I>("h_nMuons", ";# of muons;events / 1", 5, -0.5, 4.5);
 }
 
 bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -46,7 +42,6 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<std::vector<pat::Muon>> muons;
    iEvent.getByToken(muonToken, muons);
-   h_nCollection->Fill(muons->size());
 
    edm::Handle<std::vector<reco::Vertex>> goodVertices;
    iEvent.getByToken(primaryVertexColl_, goodVertices);
@@ -71,10 +66,9 @@ bool MuonProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
       }
    }
-   const size_t nMuons = goodMuons->size();
-   h_nMuons->Fill(nMuons);
-   iEvent.put(std::move(goodMuons), std::string("goodMuons"));
 
+   const size_t nMuons = goodMuons->size();
+   iEvent.put(std::move(goodMuons), std::string("goodMuons"));
    if (applyFilter) return nMuons;
    return true;
 }
