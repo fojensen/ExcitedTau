@@ -25,12 +25,13 @@ the search for excited tau leptons...
 ### Then install the jet toolbox
 `https://twiki.cern.ch/CMS/JetToolbox`
 * `git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_102X_v2`
+* `scram build`
 
 ### Then install the ExcitedTau package
 `https://github.com/fojensen/ExcitedTau` 
 * `git clone https://github.com/fojensen/ExcitedTau`
-* `cd ExcitedTau/`
 * `scram build`
+* `cd ExcitedTau/`
 
 ### Do a test run on a signal file:
 * `cmsRun excitingAnalyzer_cfg.py isSignalMC=True >& log &`

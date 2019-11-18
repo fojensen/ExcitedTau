@@ -57,29 +57,27 @@ setupEgammaPostRecoSeq(process,era='2018-Prompt')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-if options.isSignalMC:
-   infile = "/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root"
+if options.isMC:
+   if options.isSignalMC:
+      infile = "/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root"
+      outfile = "./output_sig.root"
+   else:
+      infile = "/store/mc/RunIIAutumn18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/270000/FD444175-C881-DC48-B2EC-604BF12A182F.root"
+      outfile = "./output_mc.root"
 else:
-   infile = "/store/mc/RunIIAutumn18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/270000/FD444175-C881-DC48-B2EC-604BF12A182F.root"
-
-#infile = './filelists/Taustar_TauG_L10000_m250_13TeV-pythia8.list'
-#outfile = "./mcsamples/Taustar_m250.root"
-#import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile(infile)
-#readFiles = cms.untracked.vstring(*mylist)
+   infile = "/store/data/Run2018A/JetHT/MINIAOD/PromptReco-v3/000/316/985/00000/F2F7664B-B366-E811-A007-FA163EF336AB.root"
+   outfile = "./output_data.root"
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(infile)
-   #fileNames = readFiles
 )
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(-1)
+   input = cms.untracked.int32(100)
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("output.root")
-   #fileName = cms.string(outfile)
+   fileName = cms.string(outfile)
 )
 
 process.options = cms.untracked.PSet(
@@ -104,6 +102,78 @@ process.goodTaus = cms.EDFilter("TauProducer",
 )
 mypath = mypath * process.rerunMvaIsolationSequence * getattr(process,updatedTauName) * process.goodTaus
 
+process.triggerProducer = cms.EDFilter("TriggerProducer",
+   bits = cms.InputTag("TriggerResults", "", "HLT"),
+   prescales = cms.InputTag("patTrigger"),
+   applyFilter = cms.bool(not options.isMC),
+   triggerList = cms.vstring(
+      #https://twiki.cern.ch/CMS/TauTrigger#Trigger_table_for_2018
+      "HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
+      "HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
+      "HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v", #add
+      "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",
+      "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v",
+      "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v", #add
+      "HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v",
+      "HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v", #add
+      "HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTauHPS30_eta2p1_CrossL1_v",
+      "HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_CrossL1_v", #add
+      "HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v",
+      "HLT_MediumChargedIsoPFTau200HighPtRelaxedIso_Trk50_eta2p1_v",
+      #https://twiki.cern.ch/CMS/MuonHLT2018
+      "HLT_IsoMu24_v",
+      "HLT_Mu50_v",
+      "HLT_OldMu100_v",
+      "HLT_TkMu100_v",
+      #https://twiki.cern.ch/CMS/EgHLTRunIISummary#2018
+      "HLT_Ele32_WPTight_Gsf_v",
+      "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
+      "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v",
+      "HLT_Photon200_v",
+      "HLT_Photon175_v",
+   ),
+   triggerList_HT = cms.vstring(
+      # reference triggers
+      "HLT_PFHT180_v",
+      "HLT_PFHT250_v",
+      "HLT_PFHT350_v",
+      "HLT_PFHT370_v",
+      "HLT_PFHT430_v",
+      "HLT_PFHT510_v",
+      "HLT_PFHT590_v",
+      "HLT_PFHT680_v",
+      "HLT_PFHT780_v",
+      "HLT_PFHT890_v",
+      "HLT_PFHT1050_v",
+   ),
+   triggerList_HTMHT = cms.vstring(
+      #reference triggers
+      "HLT_PFHT500_PFMET100_PFMHT100_IDTight_v",
+      "HLT_PFHT500_PFMET110_PFMHT110_IDTight_v",
+      "HLT_PFHT700_PFMET85_PFMHT85_IDTight_v",
+      "HLT_PFHT700_PFMET95_PFMHT95_IDTight_v",
+      "HLT_PFHT800_PFMET75_PFMHT75_IDTight_v",
+      "HLT_PFHT800_PFMET85_PFMHT85_IDTight_v",
+      "HLT_PFMET100_PFMHT100_IDTight_PFHT60_v",
+      "HLT_PFMET120_PFMHT120_IDTight_PFHT60_v",
+      "HLT_PFMETTypeOne120_PFMHT120_IDTight_PFHT60_v",
+      "HLT_PFMETTypeOne100_PFMHT100_IDTight_PFHT60_v",
+   ),
+   triggerList_MET = cms.vstring(
+      #reference triggers
+      "HLT_PFMET110_PFMHT110_IDTight_v",
+      "HLT_PFMET120_PFMHT120_IDTight_v",
+      "HLT_PFMET130_PFMHT130_IDTight_v",
+      "HLT_PFMET140_PFMHT140_IDTight_v",
+      "HLT_PFMETTypeOne110_PFMHT110_IDTight_v",
+      "HLT_PFMETTypeOne120_PFMHT120_IDTight_v",
+      "HLT_PFMETTypeOne130_PFMHT130_IDTight_v",
+      "HLT_PFMETTypeOne140_PFMHT140_IDTight_v",
+   )
+)
+
+mypath = mypath * process.triggerProducer
+
 process.goodPhotons = cms.EDFilter("PhotonProducer",
    photonCollection = cms.InputTag("slimmedPhotons"),
    minpt = cms.double(50.),
@@ -111,15 +181,13 @@ process.goodPhotons = cms.EDFilter("PhotonProducer",
    applyFilter = cms.bool(False),
 )
 
-mypath = mypath * process.egammaPostRecoSeq * process.goodPhotons
-
 process.goodElectrons = cms.EDFilter("ElectronProducer",
    electronCollection = cms.InputTag("slimmedElectrons"),
    minpt = cms.double(35.),
    maxeta = cms.double(2.5),
    applyFilter = cms.bool(False),
 )
-mypath = mypath * process.goodElectrons
+mypath = mypath * process.egammaPostRecoSeq * process.goodPhotons * process.goodElectrons
 
 process.goodVertices = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -151,21 +219,18 @@ if options.isSignalMC:
       bTagDiscriminators = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb']
    )
    jetTag = cms.InputTag("selectedPatJetsAK4PFCHS")
-   mypath = process.jetSequence * mypath
+   mypath = mypath * process.jetSequence
 
 process.goodJets = cms.EDProducer("JetProducer",
    jetCollection = jetTag,
    minpt = cms.double(30.),
-   maxeta = cms.double(2.6)
+   maxeta = cms.double(2.6),
+   electronCollection = cms.InputTag("goodElectrons:goodElectrons"),
+   muonCollection = cms.InputTag("goodMuons:goodMuons"),
+   tauCollection = cms.InputTag("goodTaus:goodTaus"),
+   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
 )
 mypath = mypath * process.goodJets
-
-process.triggerProducer = cms.EDFilter("TriggerProducer",
-   bits = cms.InputTag("TriggerResults", "", "HLT"),
-   #prescales = cms.InputTag("patTrigger"),
-   #applyFilter = cms.bool(False)
-)
-mypath = mypath * process.triggerProducer
 
 '''### mu + mu ###
 process.osMuMuPairProducer = cms.EDProducer("LeptonPairProducer",
@@ -284,19 +349,6 @@ process.osTauTauChannel = cms.EDAnalyzer("ChannelAnalyzer",
 )
 mypath = mypath * process.osTauTauChannel
 
-if options.isMC:
-   process.genVisTauProducer = cms.EDProducer("GenVisTauProducer",
-      genParticleCollection = cms.InputTag("prunedGenParticles")
-   )
-   mypath = mypath * process.genVisTauProducer
-
-if options.isSignalMC:
-   process.genSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
-      genParticleCollection = cms.InputTag("prunedGenParticles"),
-      metCollection = cms.InputTag("slimmedMETs")
-   )
-   mypath = mypath * process.genSignalAnalyzer
-
 if options.doSS:
    ### mu + tau ###
    process.ssMuTauChannel = process.osMuTauChannel.clone()
@@ -311,6 +363,19 @@ if options.doSS:
    process.ssTauTauChannel.q1q2 = cms.int32(1)
    mypath = mypath * process.ssTauTauPairChannel
 
+if options.isMC:
+   process.genVisTauProducer = cms.EDProducer("GenVisTauProducer",
+      genParticleCollection = cms.InputTag("prunedGenParticles")
+   )
+   mypath = mypath * process.genVisTauProducer
+
+if options.isSignalMC:
+   process.genSignalAnalyzer = cms.EDAnalyzer("GenSignalAnalyzer",
+      genParticleCollection = cms.InputTag("prunedGenParticles"),
+      metCollection = cms.InputTag("slimmedMETs")
+   )
+   mypath = mypath * process.genSignalAnalyzer
+
 xsWeight_ = options.xs / options.nevents
 process.eventAnalyzer = cms.EDAnalyzer("EventAnalyzer",
    electronCollection = cms.InputTag("goodElectrons:goodElectrons"),
@@ -320,6 +385,7 @@ process.eventAnalyzer = cms.EDAnalyzer("EventAnalyzer",
    vertexCollection = cms.InputTag("goodVertices"),
    metCollection = cms.InputTag("slimmedMETs"),
    jetCollection = cms.InputTag("goodJets:goodJets"),
+   htjetCollection = cms.InputTag("goodJets:HTJets"),
    isMC = cms.bool(options.isMC),
    genParticleCollection = cms.InputTag("prunedGenParticles"),
    xsWeight = cms.double(xsWeight_)

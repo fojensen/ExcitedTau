@@ -12,10 +12,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-//#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include <TTree.h>
 #include <iostream>
-
 
 class TriggerProducer : public edm::stream::EDFilter<> {
    public:
@@ -24,64 +23,41 @@ class TriggerProducer : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       bool applyFilter;
       edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
-      //edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
-      //2018
-      //https://twiki.cern.ch/CMS/TauTrigger#Trigger_table_for_2018
-      int HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v;
-      int HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v;
-      int HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v;
-      int HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v;
-      //https://twiki.cern.ch/CMS/MuonHLT2018
-      int HLT_IsoMu24_v;
-      int HLT_Mu50_v, HLT_OldMu100_v, HLT_TkMu100_v;
-      //https://twiki.cern.ch/CMS/EgHLTRunIISummary#2018
-      int HLT_Ele32_WPTight_Gsf_v;
-      int HLT_Ele115_CaloIdVT_GsfTrkIdT_v, HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v;
-      int HLT_Photon200_v;
-      //2017
-      int HLT_Photon175_v;
+      edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
+      std::vector<std::string> triggerList;
+      std::vector<std::string> triggerList_HT;
+      std::vector<std::string> triggerList_HTMHT;
+      std::vector<std::string> triggerList_MET;
+ 
       TTree * tree;
+      std::vector<std::string> triggerName;
+      std::vector<int> triggerFire;
+      std::vector<int> triggerPrescale;
+      bool HLT_HT, HLT_HT_p;
+      bool HLT_HTMHT, HLT_HTMHT_p;
+      bool HLT_MET, HLT_MET_p;
 };
 
 TriggerProducer::TriggerProducer(const edm::ParameterSet& iConfig)
 {
    triggerBits_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
-   //triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"));
+   triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"));
+   triggerList = iConfig.getParameter<std::vector<std::string>>("triggerList");
+   triggerList_HT = iConfig.getParameter<std::vector<std::string>>("triggerList_HT");
+   triggerList_HTMHT = iConfig.getParameter<std::vector<std::string>>("triggerList_HTMHT");
+   triggerList_MET = iConfig.getParameter<std::vector<std::string>>("triggerList_MET");
+
    edm::Service<TFileService> fs; 
    tree = fs->make<TTree>("tree", "tree");
-   //2018
-   tree->Branch(
-      "HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v",
-      &HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v, 
-      "HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v/I"
-   );
-   tree->Branch(
-      "HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v",
-      &HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v,
-      "HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v/I"
-   );
-   tree->Branch(
-      "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",
-      &HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v,
-      "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v/I"
-   );
-   tree->Branch("HLT_Photon200_v", &HLT_Photon200_v, "HLT_Photon200_v/I");
-   // muon
-   tree->Branch("HLT_IsoMu24_v", &HLT_IsoMu24_v, "HLT_IsoMu24_v/I");
-   tree->Branch("HLT_Mu50_v", &HLT_Mu50_v, "HLT_Mu50_v/I");
-   tree->Branch("HLT_OldMu100_v", &HLT_OldMu100_v, "HLT_OldMu100_v/I");
-   tree->Branch("HLT_TkMu100_v", &HLT_TkMu100_v, "HLT_TkMu100_v/I");
-   tree->Branch(
-      "HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v",
-      &HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v,
-      "HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v/I"
-   );
-   tree->Branch("HLT_Ele32_WPTight_Gsf_v", &HLT_Ele32_WPTight_Gsf_v, "HLT_Ele32_WPTight_Gsf_v/I");
-   tree->Branch("HLT_Ele115_CaloIdVT_GsfTrkIdT_v", &HLT_Ele115_CaloIdVT_GsfTrkIdT_v, "HLT_Ele115_CaloIdVT_GsfTrkIdT_v/I");
-   tree->Branch("HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v", &HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v, "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v/I");
-
-   //2017
-   tree->Branch("HLT_Photon175_v", &HLT_Photon175_v, "HLT_Photon175_v/I");
+   tree->Branch("triggerName", &triggerName);
+   tree->Branch("triggerFire", &triggerFire);
+   tree->Branch("triggerPrescale", &triggerPrescale);
+   tree->Branch("HLT_HT", &HLT_HT, "HLT_HT/O");
+   tree->Branch("HLT_HT_p", &HLT_HT_p, "HLT_HT_p/O");
+   tree->Branch("HLT_HTMHT", &HLT_HTMHT, "HLT_HTMHT/O");
+   tree->Branch("HLT_HTMHT_p", &HLT_HTMHT_p, "HLT_HTMHT_p/O");
+   tree->Branch("HLT_MET", &HLT_MET, "HLT_MET/O");
+   tree->Branch("HLT_MET_p", &HLT_MET_p, "HLT_MET_p/O"); 
 }
 
 bool TriggerProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -90,70 +66,101 @@ bool TriggerProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(triggerBits_, triggerBits);
    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
 
-   //edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
-   //iEvent.getByToken(triggerPrescales_, triggerPrescales);
+   edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+   iEvent.getByToken(triggerPrescales_, triggerPrescales);
 
-   //2018
-   HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v = -1;
-   HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v = -1;
-   HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v = -1;
-   HLT_Photon200_v = -1;
-   HLT_IsoMu24_v = HLT_Mu50_v =  HLT_OldMu100_v = HLT_TkMu100_v = -1;
-   HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v = -1;
-   HLT_Ele32_WPTight_Gsf_v = HLT_Ele115_CaloIdVT_GsfTrkIdT_v = HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v = -1;
-   //2017
-   HLT_Photon175_v = -1;
-
-   for (unsigned int j = 0, n = triggerBits->size(); j < n; ++j) {
-      std::string trig2 = names.triggerName(j);
-      //std::cout << "trigger " << j << ": " << trig2 << std::endl;
-      //2018
-      if (trig2.find("HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v")!=std::string::npos) {
-                      HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v")!=std::string::npos) {
-                      HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v")!=std::string::npos) {
-                      HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_Photon200_v")!=std::string::npos) {
-                      HLT_Photon200_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_IsoMu24_v")!=std::string::npos) {
-                      HLT_IsoMu24_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_Mu50_v")!=std::string::npos) {
-                      HLT_Mu50_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_OldMu100_v")!=std::string::npos) {
-                      HLT_OldMu100_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_TkMu100_v")!=std::string::npos) {
-                      HLT_TkMu100_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v")!=std::string::npos) {
-                      HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_Ele32_WPTight_Gsf_v")!=std::string::npos) {
-                      HLT_Ele32_WPTight_Gsf_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_Ele115_CaloIdVT_GsfTrkIdT_v")!=std::string::npos) {
-                      HLT_Ele115_CaloIdVT_GsfTrkIdT_v = triggerBits->accept(j);
-      }
-      if (trig2.find("HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v")!=std::string::npos) {
-                      HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v = triggerBits->accept(j);
-      }
-      //2017
-      if (trig2.find("HLT_Photon175_v")!=std::string::npos) {
-                      HLT_Photon175_v = triggerBits->accept(j);
-      }
-      //   if (trig2.find(trig1)!=std::string::npos) {
-        //    std::cout << "found trigger:" << names.triggerName(j) << "; prescale: " << triggerPrescales->getPrescaleForIndex(j) << "; accept: " << triggerBits->accept(j) << std::endl;
-         //   break;
-         }
-      //}
+   std::vector<std::string> triggerName_;
+   std::vector<int> triggerFire_;
+   std::vector<int> triggerPrescale_;
+   
+   //for (unsigned int i = 0; i < triggerBits->size(); ++i) {
+   //   const std::string name = names.triggerName(i);
+      //const bool accept = triggerBits->accept(i);
+   //   const int prescale = triggerPrescales->getPrescaleForIndex(i);
+   //   std::cout << "trigger " << i << ", name " << name << ", prescale " << prescale << std::endl;
    //}
+
+   bool pass = false;
+   for (auto i = triggerList.begin(); i != triggerList.end(); ++i) {
+      const std::string name1 = *i;
+      triggerName_.push_back(name1);
+      int temppass = -1;
+      int tempprescale = -1;
+      for (unsigned int j = 0; j < triggerBits->size(); ++j) {
+         const std::string name2 = names.triggerName(j);
+         if (name2.find(name1) != std::string::npos) {
+            temppass = triggerBits->accept(j);
+            tempprescale = triggerPrescales->getPrescaleForIndex(j);
+            break;
+         }
+      }
+      //if (temppass==-1) std::cout << "missing trigger: " << name1 << std::endl;
+      triggerFire_.push_back(temppass);
+      pass = pass || (temppass==1);
+      triggerPrescale_.push_back(tempprescale);
+   }
+
+   HLT_HT = HLT_HT_p = false;
+   for (auto i = triggerList_HT.begin(); i != triggerList_HT.end(); ++i) {
+      const std::string name1 = *i;
+      for (unsigned int j = 0; j < triggerBits->size(); ++j) {
+         const std::string name2 = names.triggerName(j);
+         if (name2.find(name1) != std::string::npos) {
+            if (triggerPrescales->getPrescaleForIndex(j)==1) {
+               HLT_HT = HLT_HT || triggerBits->accept(j);
+               break;
+            } else {
+               HLT_HT_p = HLT_HT_p || triggerBits->accept(j);
+               break;
+            }
+         }
+      }
+   }
+
+   HLT_HTMHT = HLT_HTMHT_p = false;
+   for (auto i = triggerList_HTMHT.begin(); i != triggerList_HTMHT.end(); ++i) {
+      const std::string name1 = *i;
+      for (unsigned int j = 0; j < triggerBits->size(); ++j) {
+         const std::string name2 = names.triggerName(j);
+         if (name2.find(name1) != std::string::npos) {
+            if (triggerPrescales->getPrescaleForIndex(j)==1) {
+               HLT_HTMHT = HLT_HTMHT || triggerBits->accept(j);
+               break;
+            } else {
+               HLT_HTMHT_p = HLT_HTMHT_p || triggerBits->accept(j);
+               break;
+            }
+         }
+      }
+   }  
+
+   HLT_MET = HLT_MET_p = false;
+   for (auto i = triggerList_MET.begin(); i != triggerList_MET.end(); ++i) {
+      const std::string name1 = *i;
+      for (unsigned int j = 0; j < triggerBits->size(); ++j) {
+         const std::string name2 = names.triggerName(j);
+         if (name2.find(name1) != std::string::npos) {
+            if (triggerPrescales->getPrescaleForIndex(j)==1) {
+               HLT_MET = HLT_MET || triggerBits->accept(j);
+               break;
+            } else {
+               HLT_MET_p = HLT_MET_p || triggerBits->accept(j);
+               break;
+            }
+         }
+      }
+   }  
+
+   if (applyFilter) {
+      if (!(pass||HLT_HT||HLT_HT_p||HLT_HTMHT||HLT_HTMHT_p||HLT_MET||HLT_MET_p)) {
+          return false;
+      }
+   }
+
+   triggerFire = triggerFire_;
+   triggerName = triggerName_;
+   triggerPrescale = triggerPrescale_;
+
    tree->Fill();
    return true;
 }
