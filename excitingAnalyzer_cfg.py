@@ -68,8 +68,15 @@ else:
    infile = "/store/data/Run2018A/JetHT/MINIAOD/PromptReco-v3/000/316/985/00000/F2F7664B-B366-E811-A007-FA163EF336AB.root"
    outfile = "./output_data.root"
 
+#infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list'
+#outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
+#import FWCore.Utilities.FileUtils as FileUtils
+#mylist = FileUtils.loadListFromFile(infile)
+#readFiles = cms.untracked.vstring(*mylist)
+
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(infile)
+    #fileNames = readFiles
 )
 
 process.maxEvents = cms.untracked.PSet(
