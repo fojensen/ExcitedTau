@@ -59,7 +59,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 if options.isMC:
    if options.isSignalMC:
-      infile = "/store/mc/RunIIFall15MiniAODv2/Taustar_TauG_L10000_m250_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/E4F9CE0A-5BCE-E511-8E00-002590D60026.root"
+      infile = "file:/uscms_data/d3/twelton/WorkingArea/CMSSW_10_2_16/src/AOD/Taustar_TauG_L10000_m175_13TeV_pythia8_MiniAOD.root"
       outfile = "./output_sig.root"
    else:
       infile = "/store/mc/RunIIAutumn18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/270000/FD444175-C881-DC48-B2EC-604BF12A182F.root"
@@ -154,10 +154,10 @@ process.triggerProducer = cms.EDFilter("TriggerProducer",
       "HLT_PFHT700_PFMET95_PFMHT95_IDTight_v",
       "HLT_PFHT800_PFMET75_PFMHT75_IDTight_v",
       "HLT_PFHT800_PFMET85_PFMHT85_IDTight_v",
-      "HLT_PFMET100_PFMHT100_IDTight_PFHT60_v",
-      "HLT_PFMET120_PFMHT120_IDTight_PFHT60_v",
-      "HLT_PFMETTypeOne120_PFMHT120_IDTight_PFHT60_v",
-      "HLT_PFMETTypeOne100_PFMHT100_IDTight_PFHT60_v",
+      #"HLT_PFMET100_PFMHT100_IDTight_PFHT60_v",
+      #"HLT_PFMET120_PFMHT120_IDTight_PFHT60_v",
+      #"HLT_PFMETTypeOne120_PFMHT120_IDTight_PFHT60_v",
+      #"HLT_PFMETTypeOne100_PFMHT100_IDTight_PFHT60_v",
    ),
    triggerList_MET = cms.vstring(
       #reference triggers
@@ -165,10 +165,10 @@ process.triggerProducer = cms.EDFilter("TriggerProducer",
       "HLT_PFMET120_PFMHT120_IDTight_v",
       "HLT_PFMET130_PFMHT130_IDTight_v",
       "HLT_PFMET140_PFMHT140_IDTight_v",
-      "HLT_PFMETTypeOne110_PFMHT110_IDTight_v",
-      "HLT_PFMETTypeOne120_PFMHT120_IDTight_v",
-      "HLT_PFMETTypeOne130_PFMHT130_IDTight_v",
-      "HLT_PFMETTypeOne140_PFMHT140_IDTight_v",
+      #"HLT_PFMETTypeOne110_PFMHT110_IDTight_v",
+      #"HLT_PFMETTypeOne120_PFMHT120_IDTight_v",
+      #"HLT_PFMETTypeOne130_PFMHT130_IDTight_v",
+      #"HLT_PFMETTypeOne140_PFMHT140_IDTight_v",
    )
 )
 
@@ -198,31 +198,14 @@ mypath = mypath * process.goodVertices
 
 process.goodMuons = cms.EDFilter("MuonProducer",
    muonCollection = cms.InputTag("slimmedMuons"),
-   vertexCollection = cms.InputTag("goodVertices"),
    minpt = cms.double(27.),
    maxeta = cms.double(2.4),
-   isSignalMC = cms.bool(options.isSignalMC),
    applyFilter = cms.bool(False)
 )
 mypath = mypath * process.goodMuons
 
-jetTag = cms.InputTag("slimmedJets")
-if options.isSignalMC:
-   #https://twiki.cern.ch/CMS/JetToolbox
-   from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
-   jetToolbox(
-      process, #process
-      'ak4', #jetType
-      'jetSequence', #sequence
-      'noOutput', #outputModules
-      JETCorrPayload='AK4PFchs',
-      bTagDiscriminators = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb']
-   )
-   jetTag = cms.InputTag("selectedPatJetsAK4PFCHS")
-   mypath = mypath * process.jetSequence
-
 process.goodJets = cms.EDProducer("JetProducer",
-   jetCollection = jetTag,
+   jetCollection = cms.InputTag("slimmedJets"),
    minpt = cms.double(30.),
    maxeta = cms.double(2.6),
    electronCollection = cms.InputTag("goodElectrons:goodElectrons"),
@@ -246,7 +229,7 @@ process.osMuMuPairProducer = cms.EDProducer("LeptonPairProducer",
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isSignalMC),
+   isMC = cms.bool(options.isMC),
    genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osMuMuPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
@@ -269,7 +252,7 @@ process.osEEPairProducer = cms.EDProducer("LeptonPairProducer",
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isSignalMC),
+   isMC = cms.bool(options.isMC),
    genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osEEPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
@@ -292,7 +275,7 @@ process.osEMuPairProducer = cms.EDProducer("LeptonPairProducer",
    maxeta_photon = cms.double(2.5),
    q1q2 = cms.int32(-1),
    applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isSignalMC),
+   isMC = cms.bool(options.isMC),
    genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
 )
 process.osEMuPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
