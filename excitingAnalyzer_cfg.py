@@ -14,7 +14,7 @@ options.register('xs',
    1.,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.float,
-   "Cross section of the dataset process."
+   "Cross section of the MC process."
 )
 options.register('isSignalMC',
    False,
@@ -22,11 +22,11 @@ options.register('isSignalMC',
    VarParsing.VarParsing.varType.bool,
    "Is this signal MC?"
 )
-options.register('applyFilter',
+options.register('applyTauFilter',
    False,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.bool,
-   "Apply skim requiring at least 1 loose tau?"
+   "Apply skim requiring at least 1 loose hadronic tau?"
 )
 options.register('isMC',
    False,
@@ -34,13 +34,48 @@ options.register('isMC',
    VarParsing.VarParsing.varType.bool,
    "Is this simulation?"
 )
+options.register("doMuMu",
+   False,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Include MuMu channel?"
+)
+options.register("doElEl",
+   False,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Include ElEl channel?"
+)
+options.register("doMuEl",
+   False,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Include MuEl channel?"
+)
+options.register("doMuTau",
+   True,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Include MuTau channel?"
+)
+options.register("doElTau",
+   True,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Include ElTau channel?"
+)
+options.register("doTauTau",
+   True,
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.bool,
+   "Include TauTau channel?"
+)
 options.register('doSS',
    False,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.bool,
-   "do SS channels?"
+   "Include SS channels?"
 )
-
 options.parseArguments()
 if options.isSignalMC:
    options.isMC = True
@@ -105,7 +140,7 @@ process.goodTaus = cms.EDFilter("TauProducer",
    tauCollection = cms.InputTag(updatedTauName),
    minpt = cms.double(20.),
    maxeta = cms.double(2.3),
-   applyFilter = cms.bool(options.applyFilter)
+   applyFilter = cms.bool(options.applyTauFilter)
 )
 mypath = mypath * process.rerunMvaIsolationSequence * getattr(process,updatedTauName) * process.goodTaus
 
@@ -222,136 +257,53 @@ process.goodJets = cms.EDProducer("JetProducer",
 )
 mypath = mypath * process.goodJets
 
-'''### mu + mu ###
-process.osMuMuPairProducer = cms.EDProducer("LeptonPairProducer",
-   leptonCollection = cms.InputTag("goodMuons:goodMuons"),
-   tauCollection = cms.InputTag("goodMuons:goodMuons"),
-   metCollection = cms.InputTag("slimmedMETs"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(27.),
-   maxeta_lepton = cms.double(2.4),
-   minpt_tau = cms.double(27.),
-   maxeta_tau = cms.double(2.4),
-   minpt_photon = cms.double(50.),
-   maxeta_photon = cms.double(2.5),
-   q1q2 = cms.int32(-1),
-   applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isMC),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
-)
-process.osMuMuPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
-   visibleTauCollection = cms.InputTag("osMuMuPairProducer:visibleTaus"),
-   collinearTauCollection = cms.InputTag("osMuMuPairProducer:collinearTaus"),
-   photonCollection = cms.InputTag("osMuMuPairProducer:selectedPhoton")
-)
+if options.doMuMu:
+   from channels_cfi import Channel_MuMu
+   process.channel_MuMu = Channel_MuMu.clone()
+   mypath = mypath * process.channel_OSMuMu
+   if options.doSS:
+      process.channel_SSMuMu = Channel_MuMu.clone(q1q1=-1)
+      mypath = mypath * process.channel_SSMuMu
 
-### e + e ###
-process.osEEPairProducer = cms.EDProducer("LeptonPairProducer",
-   leptonCollection = cms.InputTag("goodElectrons:goodElectrons"),
-   tauCollection = cms.InputTag("goodElectrons:goodElectrons"),
-   metCollection = cms.InputTag("slimmedMETs"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(35.),
-   maxeta_lepton = cms.double(2.5),
-   minpt_tau = cms.double(35.),
-   maxeta_tau = cms.double(2.5),
-   minpt_photon = cms.double(50.),
-   maxeta_photon = cms.double(2.5),
-   q1q2 = cms.int32(-1),
-   applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isMC),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
-)
-process.osEEPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
-   visibleTauCollection = cms.InputTag("osEEPairProducer:visibleTaus"),
-   collinearTauCollection = cms.InputTag("osEEPairProducer:collinearTaus"),
-   photonCollection = cms.InputTag("osEEPairProducer:selectedPhoton")
-)
+if options.doElEl:
+   from channels_cfi import Channel_ElEl
+   process.channel_OSElEl = Channel_ElEl.clone()
+   mypath = mypath * process.channel_OSElEl
+   if options.doSS:
+      process.channel_SSElEl = Channel_EE.clone(q1q1=-1)
+      mypath = mypath * process.channel_SSElEl
 
-### e + mu ###
-process.osEMuPairProducer = cms.EDProducer("LeptonPairProducer",
-   leptonCollection = cms.InputTag("goodMuons:goodMuons"),
-   tauCollection = cms.InputTag("goodElectrons:goodElectrons"),
-   metCollection = cms.InputTag("slimmedMETs"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(27.),
-   maxeta_lepton = cms.double(2.4),
-   minpt_tau = cms.double(35.),
-   maxeta_tau = cms.double(2.5),
-   minpt_photon = cms.double(50.),
-   maxeta_photon = cms.double(2.5),
-   q1q2 = cms.int32(-1),
-   applyFilter = cms.bool(False),
-   isMC = cms.bool(options.isMC),
-   genVisTauCollection = cms.InputTag("genVisTauProducer:genVisTaus"),
-)
-process.osEMuPairAnalyzer = cms.EDAnalyzer("LeptonPairAnalyzer",
-   visibleTauCollection = cms.InputTag("osEMuPairProducer:visibleTaus"),
-   collinearTauCollection = cms.InputTag("osEMuPairProducer:collinearTaus"),
-   photonCollection = cms.InputTag("osEMuPairProducer:selectedPhoton")
-)
-'''
-### mu + tau ###
-process.osMuTauChannel = cms.EDAnalyzer("ChannelAnalyzer",
-   leptonCollection = cms.InputTag("goodMuons:goodMuons"),
-   tauCollection = cms.InputTag("goodTaus:goodTaus"),
-   metCollection = cms.InputTag("slimmedMETs"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(27.),
-   maxeta_lepton = cms.double(2.4),
-   minpt_tau = cms.double(20.),
-   maxeta_tau = cms.double(2.3),
-   minpt_photon = cms.double(50.),
-   maxeta_photon = cms.double(2.5),
-   q1q2 = cms.int32(-1),
-)
-mypath = mypath * process.osMuTauChannel
+if options.doMuEl:
+   from channels_cfi import Channel_MuEl
+   process.channel_OSMuEl = Channel_MuEl.clone()
+   mypath = mypath * process.channel_OSMuEl
+   if options.doSS:
+      process.channel_SSMuEl = Channel_MuEl.clone(q1q1=-1)
+      mypath = mypath * process.channel_SSMuEl
 
-### e + tau ###
-process.osETauChannel = cms.EDAnalyzer("ChannelAnalyzer",
-   leptonCollection = cms.InputTag("goodElectrons:goodElectrons"),
-   tauCollection = cms.InputTag("goodTaus:goodTaus"),
-   metCollection = cms.InputTag("slimmedMETs"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(35.),
-   maxeta_lepton = cms.double(2.5),
-   minpt_tau = cms.double(20.),
-   maxeta_tau = cms.double(2.3),
-   minpt_photon = cms.double(50.),
-   maxeta_photon = cms.double(2.5),
-   q1q2 = cms.int32(-1),
-)
-mypath = mypath * process.osETauChannel
+if options.doMuTau:
+   from channels_cfi import Channel_MuTau
+   process.channel_OSMuTau = Channel_MuTau.clone()
+   mypath = mypath * process.channel_OSMuTau
+   if options.doSS:
+      process.channel_SSMuTau = Channel_MuTau.clone(q1q1=-1)
+      mypath = mypath * process.channel_SSMuTau
 
-### tau + tau ###
-process.osTauTauChannel = cms.EDAnalyzer("ChannelAnalyzer",
-   leptonCollection = cms.InputTag("goodTaus:goodTaus"),
-   tauCollection = cms.InputTag("goodTaus:goodTaus"),
-   metCollection = cms.InputTag("slimmedMETs"),
-   photonCollection = cms.InputTag("goodPhotons:goodPhotons"),
-   minpt_lepton = cms.double(20.),
-   maxeta_lepton = cms.double(2.3),
-   minpt_tau = cms.double(180.),
-   maxeta_tau = cms.double(2.1),
-   minpt_photon = cms.double(50.),
-   maxeta_photon = cms.double(2.5),
-   q1q2 = cms.int32(-1),
-)
-mypath = mypath * process.osTauTauChannel
+if options.doElTau:
+   from channels_cfi import Channel_ElTau
+   process.channel_OSElTau = Channel_ElTau.clone()
+   mypath = mypath * process.channel_OSElTau
+   if options.doSS:
+      process.channel_SSElTau = Channel_ElTau.clone(q1q1=-1)
+      mypath = mypath * process.channel_SSElTau
 
-if options.doSS:
-   ### mu + tau ###
-   process.ssMuTauChannel = process.osMuTauChannel.clone()
-   process.ssMuTauPairProducer.q1q2 = cms.int32(1)
-   mypath = mypath * process.ssMuTauPairChannel
-   ### e + tau ###
-   process.ssETauChannel = process.osETauChannel.clone()
-   process.ssETauChannel.q1q2 = cms.int32(1)
-   mypath = mypath * process.ssETauPairChannel
-   ### tau + tau ###
-   process.ssTauTauChannel = process.osTauTauChannel.clone()
-   process.ssTauTauChannel.q1q2 = cms.int32(1)
-   mypath = mypath * process.ssTauTauPairChannel
+if options.doTauTau:
+   from channels_cfi import Channel_TauTau
+   process.channel_OSTauTau = Channel_TauTau.clone()
+   mypath = mypath * process.channel_OSTauTau
+   if options.doSS:
+      process.channel_SSTauTau = Channel_TauTau.clone(q1q1=-1)
+      mypath = mypath * process.channel_SSTauTau
 
 if options.isMC:
    process.genVisTauProducer = cms.EDProducer("GenVisTauProducer",
@@ -382,5 +334,5 @@ process.eventAnalyzer = cms.EDAnalyzer("EventAnalyzer",
 )
 mypath = mypath * process.eventAnalyzer
 
-#process.Tracer = cms.Service("Tracer"
+#process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(mypath)

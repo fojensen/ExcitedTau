@@ -14,7 +14,9 @@ data['people'].append({
    'nfiles': '21606',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doElTau': False,
 })
 data['people'].append({
    'name': 'TauTau_Run2018B',
@@ -23,7 +25,9 @@ data['people'].append({
    'nfiles': '9717',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doElTau': False,
 })
 data['people'].append({
    'name': 'TauTau_Run2018C',
@@ -32,7 +36,9 @@ data['people'].append({
    'nfiles': '8968',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doElTau': False,
 })
 data['people'].append({
    'name': 'TauTau_Run2018D',
@@ -41,7 +47,9 @@ data['people'].append({
    'nfiles': '56451',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doElTau': False,
 })
 data['people'].append({
    'name': 'ElTau_Run2018A',
@@ -50,7 +58,9 @@ data['people'].append({
    'nfiles': '21606',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'ElTau_Run2018B',
@@ -59,7 +69,9 @@ data['people'].append({
    'nfiles': '9717',
    'isMC': isMC_, 
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'ElTau_Run2018C',
@@ -68,7 +80,9 @@ data['people'].append({
    'nfiles': '8968',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'ElTau_Run2018D',
@@ -77,7 +91,9 @@ data['people'].append({
    'nfiles': '56450',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doMuTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'MuTau_Run2018A',
@@ -86,7 +102,9 @@ data['people'].append({
    'nfiles': '21606',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doElTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'MuTau_Run2018B',
@@ -95,7 +113,9 @@ data['people'].append({
    'nfiles': '9717',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doElTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'MuTau_Run2018C',
@@ -104,7 +124,9 @@ data['people'].append({
    'nfiles': '8967',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doElTau': False,
+   'doTauTau': False,
 })
 data['people'].append({
    'name': 'MuTau_Run2018D',
@@ -113,7 +135,9 @@ data['people'].append({
    'nfiles': '56451',
    'isMC': isMC_,
    'applyFilter': applyFilter_,
-   'doSS': doSS_
+   'doSS': doSS_,
+   'doElTau': False,
+   'doTauTau': False,
 })
 
 with open('datasetsEmbedding.json', 'w') as outfile:
