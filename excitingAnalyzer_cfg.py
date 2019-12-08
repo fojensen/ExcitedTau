@@ -4,7 +4,7 @@ process = cms.Process("analysis")
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
-options.register('nevents',
+options.register('nEvents',
    1,
    VarParsing.VarParsing.multiplicity.singleton,
    VarParsing.VarParsing.varType.int,
@@ -77,8 +77,6 @@ options.register('doSS',
    "Include SS channels?"
 )
 options.parseArguments()
-if options.isSignalMC:
-   options.isMC = True
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
@@ -128,6 +126,14 @@ process.options = cms.untracked.PSet(
 
 mypath = cms.Sequence()
 
+if options.applyTauFilter:
+   process.tauFilter = cms.EDFilter("TauFilter",
+      tauCollection = cms.InputTag("slimmedTaus"),
+      minpt = cms.double(20.),
+      maxeta = cms.double(2.3),
+   )
+   mypath = mypath * process.tauFilter
+
 updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Ids
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
@@ -140,7 +146,7 @@ process.goodTaus = cms.EDFilter("TauProducer",
    tauCollection = cms.InputTag(updatedTauName),
    minpt = cms.double(20.),
    maxeta = cms.double(2.3),
-   applyFilter = cms.bool(options.applyTauFilter)
+   applyFilter = cms.bool(False)
 )
 mypath = mypath * process.rerunMvaIsolationSequence * getattr(process,updatedTauName) * process.goodTaus
 
@@ -318,7 +324,7 @@ if options.isSignalMC:
    )
    mypath = mypath * process.genSignalAnalyzer
 
-xsWeight_ = options.xs / options.nevents
+xsWeight_ = options.xs / options.nEvents
 process.eventAnalyzer = cms.EDAnalyzer("EventAnalyzer",
    electronCollection = cms.InputTag("goodElectrons:goodElectrons"),
    muonCollection = cms.InputTag("goodMuons:goodMuons"),
