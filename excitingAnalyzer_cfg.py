@@ -78,6 +78,9 @@ options.register('doSS',
 )
 options.parseArguments()
 
+if options.isSignalMC:
+   options.isMC = True
+
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
 process.load('Configuration.StandardSequences.Services_cff')
