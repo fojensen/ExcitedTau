@@ -116,26 +116,8 @@ setupEgammaPostRecoSeq(process,era='2018-Prompt')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-if options.isMC:
-   if options.isSignalMC:
-      infile = "file:/uscms_data/d3/twelton/WorkingArea/CMSSW_10_2_16/src/AOD/Taustar_TauG_L10000_m175_13TeV_pythia8_MiniAOD.root"
-      outfile = "./output_sig.root"
-   else:
-      infile = "/store/mc/RunIIAutumn18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/270000/FD444175-C881-DC48-B2EC-604BF12A182F.root"
-      outfile = "./output_mc.root"
-else:
-   infile = "/store/data/Run2018A/JetHT/MINIAOD/PromptReco-v3/000/316/985/00000/F2F7664B-B366-E811-A007-FA163EF336AB.root"
-   outfile = "./output_data.root"
-
-#infile = './filelists/DYJetsToLL_M-50_Zpt-150toInf_TuneCP5_13TeV-madgraphMLM-pythia8.list'
-#outfile = "./mcsamples/DYJetsToLL_Zpt150.root"
-#import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile(infile)
-#readFiles = cms.untracked.vstring(*mylist)
-
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(infile)
-    #fileNames = readFiles
 )
 
 process.maxEvents = cms.untracked.PSet(
