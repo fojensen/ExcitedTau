@@ -121,7 +121,7 @@ data['people'].append({
 data['people'].append({
    'name': 'Tau_2018A',
    'das': '/Tau/Run2018A-PromptReco-v3/MINIAOD',
-   'globalTag': '102X_dataRun2_Prompt_v14',
+   'globalTag': '102X_dataRun2_v11',
    'nEvents': '17972951',
    'nFiles': '258',
    'applyTauFilter': applyTauFilter_,

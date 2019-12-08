@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("analysis")
 
+#https://twiki.cern.ch/CMSPublic/SWGuideAboutPythonConfigFile#Passing_Command_Line_Arguments_T
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
 options.register('nEvents',
@@ -76,13 +77,20 @@ options.register('doSS',
    VarParsing.VarParsing.varType.bool,
    "Include SS channels?"
 )
+options.register('globalTag',
+   '',
+   VarParsing.VarParsing.multiplicity.singleton,
+   VarParsing.VarParsing.varType.string,
+   "globalTag"
+)
+
 options.parseArguments()
 
 if options.isSignalMC:
    options.isMC = True
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
+process.GlobalTag.globaltag = options.globalTag
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
