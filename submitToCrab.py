@@ -1,10 +1,10 @@
 import json
 import os
 
-#infile = 'datasetsBkg_2018.json'
+infile = 'datasetsBkg_2018.json'
 #infile = 'datasetsSig_2015.json'
 #infile = 'datasetsEmbedding_2018.json'
-infile = 'datasetsData_2018.json'
+#infile = 'datasetsData_2018.json'
 
 with open(infile) as json_file:
 
@@ -40,12 +40,12 @@ with open(infile) as json_file:
          pyCfgParams.append('doElTau=' + str(p['doElTau']))
       if 'doTauTau' in p:
          pyCfgParams.append('doTauTau=' + str(p['doTauTau']))
-      f.write("config.JobType.pyCfgParams = "+str(pyCfgParams))
+      f.write("config.JobType.pyCfgParams = " + str(pyCfgParams) + "\n")
       f.write("\n")
 
       f.write("config.Data.inputDataset = '"+p['das']+"'\n")
       if 'inputDBS' in p:
-         f.write("config.Data.inputDBS = " + str(p['inputDBS']))
+         f.write("config.Data.inputDBS = '" + str(p['inputDBS'])+"'\n")
       if 'isMC' in p and p['isMC']==True:
          f.write("config.Data.splitting = 'FileBased'\n")
          f.write("config.Data.unitsPerJob = 1\n")
@@ -60,6 +60,7 @@ with open(infile) as json_file:
 
       f.close()
 
-      # uncomment the following line to actually submit jobs
-      #os.system("crab submit " + f.name)
+      # actually submit jobs or not
+      #os.system("crab submit -c " + f.name)
+      #os.system("crab submit -c " + f.name + " --dryrun")
 
