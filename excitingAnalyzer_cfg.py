@@ -89,6 +89,21 @@ options.parseArguments()
 if options.isSignalMC:
    options.isMC = True
 
+if options.isMC:
+   if options.globalTag=="":
+      options.globalTag="102X_upgrade2018_realistic_v19"
+   if options.isSignalMC:
+      infile = "file:/uscms_data/d3/twelton/WorkingArea/CMSSW_10_2_16/src/AOD/Taustar_TauG_L10000_m175_13TeV_pythia8_MiniAOD.root"
+      outfile = "./output_sig.root"
+   else:
+      infile = "/store/mc/RunIIAutumn18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/270000/FD444175-C881-DC48-B2EC-604BF12A182F.root"
+      outfile = "./output_mc.root"
+else:
+   if options.globalTag=="":
+      options.globalTag="102X_dataRun2_v11"
+   infile = "/store/data/Run2018A/JetHT/MINIAOD/PromptReco-v3/000/316/985/00000/F2F7664B-B366-E811-A007-FA163EF336AB.root"
+   outfile = "./output_data.root"
+
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = options.globalTag
 process.load('Configuration.StandardSequences.Services_cff')
